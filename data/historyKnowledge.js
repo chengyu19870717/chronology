@@ -1,4 +1,3 @@
-const { getAvatarProfile } = require('./avatarPrompts');
 const { formatHistoricalName } = require('./namePronunciations');
 const expansion = require('./historyExpansion');
 const { rulers } = require('./rulerTimeline');
@@ -3040,7 +3039,6 @@ function eventSearchScore(event, keyword) {
 }
 
 function decoratePerson(person) {
-  const avatar = getAvatarProfile(person);
   return {
     ...person,
     name: formatHistoricalName(person.name),
@@ -3051,10 +3049,6 @@ function decoratePerson(person) {
     avatarPath: `/person-package/assets/avatars/${person.id}.jpg`,
     hasAvatar: true,
     isFeaturedAvatar: person.hasAvatar !== false,
-    avatarType: avatar.type,
-    avatarPrompt: avatar.positive,
-    avatarGenerationPrompt: avatar.generation,
-    avatarNegativePrompt: avatar.negative,
     avatarInitial: person.name.slice(0, 1),
     relatedEvents: sortEventsByDate((person.relatedEventIds || []).map(id => eventMap[id]).filter(Boolean)),
   };

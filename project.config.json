@@ -57,6 +57,10 @@
       },
       {
         "type": "file",
+        "value": "data/avatarPrompts.js"
+      },
+      {
+        "type": "file",
         "value": "assets/avatars/README.md"
       },
       {

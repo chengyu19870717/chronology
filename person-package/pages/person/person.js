@@ -108,13 +108,7 @@ Page({
     }
 
     const decorated = knowledge.decoratePerson(source);
-    const {
-      avatarPrompt,
-      avatarGenerationPrompt,
-      avatarNegativePrompt,
-      relatedEvents: rawRelatedEvents,
-      ...person
-    } = decorated;
+    const { relatedEvents: rawRelatedEvents, ...person } = decorated;
     const relationships = knowledge.getPersonRelationships(person.id).map(toRelationship);
     const externalRelationships = getCurriculumRelationships(person)
       .filter(edge => !relationships.some(item => item.otherId === edge.otherId));

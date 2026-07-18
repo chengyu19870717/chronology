@@ -3,6 +3,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { spawnSync } = require('child_process');
 const { persons, decoratePerson } = require('../data/historyKnowledge');
+const { getAvatarProfile } = require('../data/avatarPrompts');
 const curriculum = require('../data/curriculumIndex');
 const curriculumContent = require('../curriculum-package/data/content');
 const {
@@ -349,7 +350,17 @@ function selectPeople(options) {
       .filter(person => !existingNames.has(normalize(person.name)))
       .map(person => curriculumContent.buildPerson(person.id));
   } else {
-    selected = persons.map(decoratePerson);
+    selected = persons.map(source => {
+      const person = decoratePerson(source);
+      const avatar = getAvatarProfile(source);
+      return {
+        ...person,
+        avatarType: avatar.type,
+        avatarPrompt: avatar.positive,
+        avatarGenerationPrompt: avatar.generation,
+        avatarNegativePrompt: avatar.negative,
+      };
+    });
   }
   if (!options.only && !options.includePlaceholderAvatars) {
     selected = selected.filter(person => person.hasAvatar);

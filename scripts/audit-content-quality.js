@@ -350,6 +350,7 @@ const ignoredRuntimeNames = new Set([
   'curriculum-package',
   'README.md',
   'COMFYUI_STATUS.md',
+  'avatarPrompts.js',
   'project.config.json',
   'project.private.config.json',
 ]);
