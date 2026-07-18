@@ -1,0 +1,239 @@
+<view wx:if="{{person}}" class="page person-page">
+  <view class="person-hero">
+    <view class="hero-top">
+      <view class="portrait-frame">
+        <image
+          wx:if="{{person.hasAvatar && !avatarLoadFailed}}"
+          class="portrait-image"
+          src="{{person.avatarPath}}"
+          mode="aspectFill"
+          binderror="onAvatarError"
+        />
+        <view wx:else class="portrait-fallback">
+          <text class="portrait-initial">{{person.avatarInitial}}</text>
+          <text class="portrait-note">史</text>
+        </view>
+      </view>
+      <view class="hero-copy">
+        <view class="life-pill">{{person.lifeText}}</view>
+        <view class="person-name">{{person.name}}</view>
+        <view wx:if="{{person.formalName && person.formalName !== person.name}}" class="formal-name">本名 / 常用名：{{person.formalName}}</view>
+      </view>
+    </view>
+    <view class="person-summary">{{person.summary}}</view>
+    <view class="label-row">
+      <view
+        wx:for="{{person.categories}}"
+        wx:key="*this"
+        class="tag person-glossary-tag"
+        data-label="{{item}}"
+        role="button"
+        aria-label="查看{{item}}标签含义"
+        catchtap="showTagInfo"
+        hover-class="button-hover"
+        hover-stay-time="80"
+      >
+        <text>{{item}}</text>
+        <text class="person-tag-info-dot">i</text>
+      </view>
+    </view>
+    <view class="cross-box">
+      <view class="cross-title">跨越朝代 / 时期</view>
+      <view class="cross-text">{{person.crossText}}</view>
+      <view class="cross-text weak">{{person.activePeriodText}}</view>
+    </view>
+  </view>
+
+  <view class="tab-row">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="id"
+      class="tab-button {{activeTab === item.id ? 'is-active' : ''}}"
+      data-tab-id="{{item.id}}"
+      role="tab"
+      aria-label="查看{{item.name}}"
+      aria-selected="{{activeTab === item.id}}"
+      bindtap="switchTab"
+    >
+      {{item.name}}
+    </view>
+  </view>
+
+  <view wx:if="{{activeTab === 'profile'}}" class="section">
+    <view class="section-title">基础档案</view>
+    <view class="info-block">
+      <view class="info-label">家世与成长背景</view>
+      <view class="info-text">{{person.background}}</view>
+    </view>
+    <view class="info-block">
+      <view class="info-label">幼年与早期性格线索</view>
+      <view class="info-text">{{person.childhood}}</view>
+    </view>
+    <view class="info-block">
+      <view class="info-label">性格特征</view>
+      <view class="info-text">{{person.personality}}</view>
+    </view>
+    <view class="info-block">
+      <view class="info-label">政策倾向</view>
+      <view class="info-text">{{person.policyInclination}}</view>
+    </view>
+    <view class="info-block">
+      <view class="info-label">社会贡献</view>
+      <view class="info-text">{{person.socialContribution}}</view>
+    </view>
+    <view class="info-block">
+      <view class="info-label">对朝代更替 / 发展的影响</view>
+      <view class="info-text">{{person.impactSummary}}</view>
+    </view>
+  </view>
+
+  <view wx:elif="{{activeTab === 'resume'}}" class="section resume-section">
+    <view class="section-title">简历式履历 · {{resume.length}}</view>
+    <view wx:for="{{resume}}" wx:key="timeText" class="resume-card">
+      <view class="resume-time">{{item.timeText}}</view>
+      <view class="resume-title">{{item.periodLabel}} · {{item.title}}</view>
+      <view class="resume-field">
+        <text class="field-label">名义职责</text>
+        <text class="field-text">{{item.nominalDuty}}</text>
+      </view>
+      <view class="resume-field is-strong">
+        <text class="field-label">管辖权限</text>
+        <text class="field-text">{{item.authorityScope}}</text>
+      </view>
+      <view class="resume-field">
+        <text class="field-label">实际影响力</text>
+        <text class="field-text">{{item.actualInfluence}}</text>
+      </view>
+      <view class="resume-field">
+        <text class="field-label">职能近似</text>
+        <text class="field-text">{{item.equivalentText}}</text>
+      </view>
+      <view class="resume-impact">{{item.impact}}</view>
+    </view>
+  </view>
+
+  <view wx:elif="{{activeTab === 'relations'}}" class="section">
+    <view class="section-title">人物关系图谱 · {{relationships.length}}</view>
+    <view wx:if="{{relationships.length}}">
+      <view class="graph-stage">
+        <view class="graph-center">
+          <image wx:if="{{person.hasAvatar && !avatarLoadFailed}}" class="graph-center-avatar" src="{{person.avatarPath}}" mode="aspectFill" />
+          <text class="graph-center-name">{{person.name}}</text>
+          <text class="graph-center-sub">{{relationships.length}} 条关系</text>
+        </view>
+        <view class="graph-node-grid">
+          <button
+            wx:for="{{graphRelationships}}"
+            wx:key="otherId"
+            class="graph-node"
+            data-id="{{item.otherId}}"
+            aria-label="查看{{item.other.name}}的人物志"
+            catchtap="goPerson"
+          >
+            <image wx:if="{{item.other.hasAvatar}}" class="graph-node-avatar" src="{{item.other.avatarPath}}" mode="aspectFill" />
+            <view wx:else class="graph-node-avatar graph-node-avatar-fallback">{{item.other.avatarInitial}}</view>
+            <text class="graph-node-name">{{item.other.name}}</text>
+            <text class="graph-node-type">{{item.type}}</text>
+          </button>
+        </view>
+      </view>
+      <view wx:if="{{relationships.length > graphRelationships.length}}" class="graph-note">
+        另有 {{relationships.length - graphRelationships.length}} 条关系，见下方列表
+      </view>
+
+      <view class="relation-list">
+        <view
+          wx:for="{{relationships}}"
+          wx:key="otherId"
+          class="relation-card"
+          data-id="{{item.otherId}}"
+          bindtap="goPerson"
+          hover-class="card-pressed"
+          hover-stay-time="80"
+        >
+          <view class="relation-top">
+            <image wx:if="{{item.other.hasAvatar}}" class="relation-avatar" src="{{item.other.avatarPath}}" mode="aspectFill" />
+            <view wx:else class="relation-avatar relation-avatar-fallback">{{item.other.avatarInitial}}</view>
+            <view class="relation-main">
+              <view class="relation-name">{{person.name}} ↔ {{item.other.name}}</view>
+              <view class="relation-type">{{item.type}}</view>
+            </view>
+            <view class="arrow-mark">›</view>
+          </view>
+          <view class="relation-summary">{{item.summary}}</view>
+          <view wx:if="{{item.eventText}}" class="relation-events">关联事件：{{item.eventText}}</view>
+        </view>
+      </view>
+    </view>
+    <view wx:else class="empty-note">暂无可核对的人物关系资料。</view>
+  </view>
+
+  <view wx:elif="{{activeTab === 'events'}}" class="section">
+    <view class="section-title">相关重大事件 · {{relatedEvents.length}}</view>
+    <view wx:for="{{relatedEvents}}" wx:key="id" class="event-card" data-id="{{item.id}}" bindtap="goEvent" hover-class="card-pressed" hover-stay-time="80">
+      <view class="event-date">{{item.dateText}} · {{item.periodLabel}}</view>
+      <view class="event-name">{{item.name}}</view>
+      <view class="event-summary">{{item.summary}}</view>
+      <view class="event-tags">{{item.tagText}}</view>
+    </view>
+    <view wx:if="{{!relatedEvents.length}}" class="empty-note">暂无可核对的关联事件资料。</view>
+  </view>
+
+  <view wx:else class="section">
+    <view class="section-title">不同认知观点 · {{person.disputeTabs.length}}</view>
+    <view wx:if="{{person.disputeTabs.length}}">
+      <scroll-view class="dispute-tabs" scroll-x="true" show-scrollbar="false">
+        <view class="dispute-row">
+          <button
+            wx:for="{{person.disputeTabs}}"
+            wx:key="title"
+            class="dispute-button {{index === activeDisputeIndex ? 'is-active' : ''}}"
+            data-index="{{index}}"
+            catchtap="switchDispute"
+          >
+            {{item.title}}
+          </button>
+        </view>
+      </scroll-view>
+      <view class="debate-card">
+        <view class="debate-title">{{activeDispute.title}}</view>
+        <view class="debate-text">{{activeDispute.body}}</view>
+      </view>
+    </view>
+    <view wx:else class="empty-note">暂无需要单列的主要争议观点。</view>
+  </view>
+
+  <view
+    wx:if="{{tagDialogVisible && activeTagInfo}}"
+    class="person-tag-dialog-mask"
+    catchtouchmove="preventTouchMove"
+    bindtap="closeTagInfo"
+  >
+    <view class="person-tag-dialog-sheet" catchtap="stopTagDialogTap">
+      <view class="person-tag-dialog-handle"></view>
+      <view class="person-tag-dialog-head">
+        <view class="person-tag-dialog-title">{{activeTagInfo.label}}</view>
+        <button class="person-tag-dialog-close" aria-label="关闭标签说明" catchtap="closeTagInfo">×</button>
+      </view>
+      <view class="person-tag-dialog-meta">{{activeTagInfo.category}} · {{activeTagInfo.personName}}</view>
+      <view class="person-tag-dialog-section">
+        <view class="person-tag-dialog-label">基本含义</view>
+        <view class="person-tag-dialog-copy">{{activeTagInfo.definition}}</view>
+      </view>
+      <view class="person-tag-dialog-section">
+        <view class="person-tag-dialog-label">本人物标注重点</view>
+        <view class="person-tag-dialog-copy">{{activeTagInfo.context}}</view>
+      </view>
+      <view class="person-tag-dialog-note">{{activeTagInfo.note}}</view>
+    </view>
+  </view>
+
+  <view class="safe-bottom"></view>
+  <button wx:if="{{showBackTop}}" class="back-top-button" aria-label="返回顶部" catchtap="scrollToTop">↑</button>
+</view>
+
+<view wx:else class="page missing-page">
+  <view class="missing-title">人物不存在</view>
+  <view class="missing-copy">请返回首页重新选择。</view>
+  <button class="primary-button missing-button" bindtap="goBack">返回</button>
+</view>

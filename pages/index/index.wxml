@@ -1,0 +1,352 @@
+<view class="page index-page">
+  <view class="app-header">
+    <view class="brand-row">
+      <view class="brand-copy">
+        <view class="brand-title">中国编年史速查表</view>
+        <view class="brand-meta">夏商至清 · 朝代、帝王、人物与事件</view>
+      </view>
+      <view class="coverage-mark">通史</view>
+    </view>
+    <view class="stats-row">
+      <view class="stat-cell">
+        <text class="stat-number">{{stats.dynastyCount}}</text>
+        <text class="stat-label">朝代</text>
+      </view>
+      <view class="stat-cell">
+        <text class="stat-number">{{stats.totalPersonCount}}</text>
+        <text class="stat-label">人物</text>
+      </view>
+      <view class="stat-cell">
+        <text class="stat-number">{{stats.eventCount}}</text>
+        <text class="stat-label">事件</text>
+      </view>
+      <view class="stat-cell">
+        <text class="stat-number">{{stats.rulerCount}}</text>
+        <text class="stat-label">帝王</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="tool-panel">
+    <view class="search-row">
+      <input
+        class="search-input"
+        value="{{keyword}}"
+        placeholder="搜索人物、帝王、事件或官职"
+        placeholder-style="color:#8A969D"
+        confirm-type="search"
+        bindinput="onSearchInput"
+        bindconfirm="onSearchConfirm"
+      />
+      <button wx:if="{{keyword}}" class="clear-button" aria-label="清除搜索" catchtap="clearSearch">×</button>
+    </view>
+
+    <view class="mode-row">
+      <button
+        wx:for="{{modes}}"
+        wx:key="id"
+        class="mode-button {{activeMode === item.id ? 'is-active' : ''}}"
+        data-id="{{item.id}}"
+        aria-label="切换到{{item.name}}"
+        catchtap="switchMode"
+      >
+        {{item.name}}
+      </button>
+    </view>
+  </view>
+
+  <view wx:if="{{activeMode === 'dynasty'}}" class="content-section">
+    <view class="result-head dynasty-result-head">
+      <view class="result-head-copy">
+        <text class="result-title">朝代顺序与人物聚合</text>
+        <text class="result-count">{{dynasties.length}} 组</text>
+      </view>
+    </view>
+    <view class="dynasty-actions">
+      <button class="expand-all-button" aria-label="展开全部朝代" catchtap="expandAllDynasties">全部展开</button>
+      <button class="expand-all-button" aria-label="收起全部朝代" catchtap="collapseAllDynasties">全部收起</button>
+    </view>
+
+    <view wx:for="{{dynasties}}" wx:key="id" class="dynasty-card">
+      <view class="dynasty-head" data-id="{{item.id}}" bindtap="toggleDynasty" hover-class="card-pressed" hover-stay-time="80">
+        <view class="dynasty-main">
+          <view class="dynasty-order">第 {{item.order}} 组 · {{item.dateText}}</view>
+          <view class="dynasty-title">{{item.name}}</view>
+          <view class="dynasty-summary">{{item.summary}}</view>
+        </view>
+        <view class="expand-mark">{{item.isExpanded ? '收起' : '展开'}}</view>
+      </view>
+
+      <view class="label-row">
+        <view
+          class="status-label glossary-tag {{item.status === 'sample' ? 'is-sample' : ''}} {{item.status === 'expanded' ? 'is-expanded' : ''}}"
+          data-label="{{item.statusText}}"
+          data-dynasty="{{item.name}}"
+          role="button"
+          aria-label="查看{{item.statusText}}标签含义"
+          catchtap="showTagInfo"
+          hover-class="button-hover"
+          hover-stay-time="80"
+        >
+          <text>{{item.statusText}}</text>
+          <text class="tag-info-dot">i</text>
+        </view>
+        <view
+          wx:for="{{item.labels}}"
+          wx:for-item="label"
+          wx:key="*this"
+          class="tag glossary-tag"
+          data-label="{{label}}"
+          data-dynasty="{{item.name}}"
+          role="button"
+          aria-label="查看{{label}}标签含义"
+          catchtap="showTagInfo"
+          hover-class="button-hover"
+          hover-stay-time="80"
+        >
+          <text>{{label}}</text>
+          <text class="tag-info-dot">i</text>
+        </view>
+      </view>
+
+      <view wx:if="{{item.isExpanded && item.periods.length}}" class="period-list">
+        <view wx:if="{{item.emperors.length}}" class="ruler-timeline">
+          <view class="sub-title">帝王本纪 / 正统君主 · {{item.emperors.length}} 位</view>
+          <scroll-view class="ruler-scroll" scroll-x="true" show-scrollbar="false">
+            <view class="ruler-row">
+              <button
+                wx:for="{{item.emperors}}"
+                wx:key="id"
+                wx:for-item="ruler"
+                class="ruler-chip {{ruler.hasDetail ? 'has-detail' : ''}} {{ruler.isFeatured ? 'is-featured' : ''}}"
+                data-person-id="{{ruler.linkedPersonId}}"
+                catchtap="goRuler"
+              >
+                <text wx:if="{{ruler.isFeatured}}" class="featured-emperor-badge">重点帝王</text>
+                <text class="ruler-chip-name">{{ruler.name}}</text>
+                <text class="ruler-chip-meta">{{ruler.polity}} · {{ruler.reignText}}</text>
+              </button>
+            </view>
+          </scroll-view>
+        </view>
+
+        <view wx:if="{{item.otherRulers.length}}" class="ruler-timeline other-ruler-timeline">
+          <view class="sub-title">诸侯 / 区域政权首领</view>
+          <scroll-view class="ruler-scroll" scroll-x="true" show-scrollbar="false">
+            <view class="ruler-row">
+              <button
+                wx:for="{{item.otherRulers}}"
+                wx:key="id"
+                wx:for-item="ruler"
+                class="ruler-chip has-detail"
+                data-person-id="{{ruler.linkedPersonId}}"
+                catchtap="goRuler"
+              >
+                <text class="ruler-chip-name">{{ruler.name}}</text>
+                <text class="ruler-chip-meta">{{ruler.polity}} · {{ruler.reignText}}</text>
+              </button>
+            </view>
+          </scroll-view>
+        </view>
+
+        <view wx:for="{{item.periods}}" wx:key="id" wx:for-item="period" class="period-card">
+          <view class="period-name">{{period.name}}</view>
+          <view class="period-meta">{{period.dateText}} · {{period.ruler}}</view>
+
+          <view wx:if="{{period.emperorPeople.length}}" class="sub-title">本阶段关联帝王</view>
+          <view wx:if="{{period.emperorPeople.length}}" class="person-chip-row emperor-person-chip-row">
+            <button
+              wx:for="{{period.emperorPeople}}"
+              wx:key="id"
+              wx:for-item="person"
+              class="person-chip is-emperor-person"
+              data-id="{{person.id}}"
+              catchtap="goPerson"
+            >
+              {{person.name}}
+            </button>
+          </view>
+
+          <view wx:if="{{period.visiblePersonCount}}" class="sub-title">其他历史人物</view>
+          <view wx:if="{{period.visiblePersonCount}}" class="other-person-grid-list">
+            <view
+              wx:for="{{period.personRows}}"
+              wx:key="key"
+              wx:for-item="personRow"
+              class="other-person-grid-row is-{{personRow.columns}}-columns {{personRow.isSingle ? 'is-single' : ''}}"
+            >
+              <button
+                wx:for="{{personRow.people}}"
+                wx:key="id"
+                wx:for-item="person"
+                class="person-chip"
+                data-id="{{person.id}}"
+                catchtap="goPerson"
+              >
+                <text class="person-chip-name">{{person.name}}</text>
+              </button>
+            </view>
+          </view>
+
+          <button
+            wx:if="{{period.isCurriculum && period.personTotal > period.visiblePersonCount}}"
+            class="period-more-button"
+            data-mode="person"
+            data-dynasty="{{item.name}}"
+            catchtap="openDynastyExpansion"
+          >查看本朝全部 {{period.personTotal}} 位人物</button>
+
+          <view class="sub-title">重大事件</view>
+          <view class="event-list-mini">
+            <button
+              wx:for="{{period.events}}"
+              wx:key="id"
+              wx:for-item="event"
+              class="event-mini"
+              data-id="{{event.id}}"
+              catchtap="goEvent"
+            >
+              <text class="event-mini-date">{{event.dateText}}</text>
+              <text class="event-mini-name">{{event.name}}</text>
+            </button>
+          </view>
+          <button
+            wx:if="{{period.isCurriculum && period.eventTotal > period.events.length}}"
+            class="period-more-button is-event"
+            data-mode="event"
+            data-dynasty="{{item.name}}"
+            catchtap="openDynastyExpansion"
+          >查看本朝全部 {{period.eventTotal}} 件事件</button>
+        </view>
+      </view>
+
+      <view wx:if="{{item.isExpanded && item.states.length}}" class="state-list">
+        <view class="state-intro">五代十国并行政权</view>
+        <view wx:for="{{item.states}}" wx:key="name" class="state-card">
+          <view class="state-line">
+            <text class="state-name">{{item.name}}</text>
+            <text class="state-group">{{item.group}}</text>
+            <text class="state-date">{{item.dateText}}</text>
+          </view>
+          <view class="state-overlap">并存/跨越：{{item.overlapText}}</view>
+        </view>
+      </view>
+
+    </view>
+
+    <view wx:if="{{!dynasties.length}}" class="empty-panel">
+      <view class="empty-title">没有匹配朝代</view>
+      <view class="empty-copy">换一个关键词试试。</view>
+    </view>
+  </view>
+
+  <view wx:elif="{{activeMode === 'ruler'}}" class="content-section">
+    <view class="result-head">
+      <text class="result-title">帝王本纪速查</text>
+      <text class="result-count">{{rulers.length}} / {{rulerTotal}} 位</text>
+    </view>
+
+    <view wx:for="{{rulers}}" wx:key="id" class="result-card ruler-result-card {{item.isFeatured ? 'is-featured' : ''}}" data-person-id="{{item.linkedPersonId}}" bindtap="goRuler" hover-class="card-pressed" hover-stay-time="80">
+      <view class="result-card-top">
+        <view class="result-main">
+          <view class="result-name">{{item.name}}</view>
+          <view class="result-meta">{{item.dynastyName}} · {{item.polity}} · {{item.reignText}}</view>
+        </view>
+        <view class="detail-pill {{item.hasDetail ? 'has-detail' : ''}} {{item.isFeatured ? 'is-featured' : ''}}">{{item.detailText}}</view>
+      </view>
+      <view wx:if="{{item.personalName}}" class="ruler-personal">本名 / 常用名：{{item.personalName}}</view>
+      <view class="ruler-basis">收录依据：{{item.recordBasisText}}</view>
+      <view class="result-summary">{{item.summary}}</view>
+      <view class="cross-line">{{item.tagText}}</view>
+    </view>
+
+    <view wx:if="{{!rulers.length}}" class="empty-panel">
+      <view class="empty-title">没有匹配帝王</view>
+      <view class="empty-copy">试试“汉宣帝”“宋仁宗”“爱新觉罗·玄烨”或“五代十国”。</view>
+    </view>
+
+    <button wx:if="{{hasMore}}" class="load-more-button" catchtap="loadMore">加载更多</button>
+  </view>
+
+  <view wx:elif="{{activeMode === 'person'}}" class="content-section">
+    <view class="result-head">
+      <text class="result-title">人物速查</text>
+      <text class="result-count">{{persons.length}} / {{personTotal}} 人</text>
+    </view>
+
+    <view wx:for="{{persons}}" wx:key="id" class="result-card person-result-card" data-id="{{item.id}}" bindtap="goPerson" hover-class="card-pressed" hover-stay-time="80">
+      <image wx:if="{{item.isFeaturedAvatar}}" class="list-avatar" src="{{item.avatarPath}}" mode="aspectFill" />
+      <view wx:else class="list-avatar list-avatar-fallback">{{item.avatarInitial}}</view>
+      <view class="result-card-top">
+        <view class="result-main">
+          <view class="result-name">{{item.name}}</view>
+          <view class="result-meta">{{item.lifeText}} · {{item.categoryText}}</view>
+        </view>
+        <view class="arrow-mark">›</view>
+      </view>
+      <view class="result-summary">{{item.summary}}</view>
+      <view class="cross-line">跨越：{{item.crossText}}</view>
+    </view>
+
+    <view wx:if="{{!persons.length}}" class="empty-panel">
+      <view class="empty-title">没有匹配人物</view>
+      <view class="empty-copy">试试“赵高”“李斯”或“郎中令”；皇帝请切换到“帝王”。</view>
+    </view>
+
+    <button wx:if="{{hasMore}}" class="load-more-button" catchtap="loadMore">加载更多</button>
+  </view>
+
+  <view wx:else class="content-section">
+    <view class="result-head">
+      <text class="result-title">事件索引</text>
+      <text class="result-count">{{events.length}} / {{eventTotal}} 件</text>
+    </view>
+
+    <view wx:for="{{events}}" wx:key="id" class="result-card" data-id="{{item.id}}" bindtap="goEvent" hover-class="card-pressed" hover-stay-time="80">
+      <view class="result-card-top">
+        <view class="result-main">
+          <view class="result-name">{{item.name}}</view>
+          <view class="result-meta">{{item.dateText}} · {{item.periodLabel}}</view>
+        </view>
+        <view class="arrow-mark">›</view>
+      </view>
+      <view class="result-summary">{{item.summary}}</view>
+      <view class="cross-line">{{item.tagText}}</view>
+    </view>
+
+    <view wx:if="{{!events.length}}" class="empty-panel">
+      <view class="empty-title">没有匹配事件</view>
+      <view class="empty-copy">试试“指鹿为马”“沙丘政变”“大泽乡”。</view>
+    </view>
+
+    <button wx:if="{{hasMore}}" class="load-more-button" catchtap="loadMore">加载更多</button>
+  </view>
+
+  <view
+    wx:if="{{tagDialogVisible && activeTagInfo}}"
+    class="tag-dialog-mask"
+    catchtouchmove="preventTouchMove"
+    bindtap="closeTagInfo"
+  >
+    <view class="tag-dialog-sheet" catchtap="stopTagDialogTap">
+      <view class="tag-dialog-handle"></view>
+      <view class="tag-dialog-head">
+        <view class="tag-dialog-title">{{activeTagInfo.label}}</view>
+        <button class="tag-dialog-close" aria-label="关闭标签说明" catchtap="closeTagInfo">×</button>
+      </view>
+      <view class="tag-dialog-meta">{{activeTagInfo.category}} · {{activeTagInfo.dynastyName}}</view>
+      <view class="tag-dialog-section">
+        <view class="tag-dialog-label">基本含义</view>
+        <view class="tag-dialog-copy">{{activeTagInfo.definition}}</view>
+      </view>
+      <view class="tag-dialog-section">
+        <view class="tag-dialog-label">本表标注重点</view>
+        <view class="tag-dialog-copy">{{activeTagInfo.context}}</view>
+      </view>
+      <view class="tag-dialog-note">{{activeTagInfo.note}}</view>
+    </view>
+  </view>
+
+  <view class="safe-bottom"></view>
+  <button wx:if="{{showBackTop}}" class="back-top-button" aria-label="返回顶部" catchtap="scrollToTop">↑</button>
+</view>

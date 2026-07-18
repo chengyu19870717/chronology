@@ -1,0 +1,9 @@
+.DS_Store
+project.private.config.json
+
+# ComfyUI source renders are reproducible and are not required at runtime.
+assets/avatar-sources/
+
+# Local generation diagnostics.
+generation-failures*.json
+*.log

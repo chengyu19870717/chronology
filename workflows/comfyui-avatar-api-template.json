@@ -1,0 +1,15 @@
+{
+  "description": "API workflow template used by scripts/generate-avatars-comfyui.js. The script fills prompt, seed, size, and filename_prefix for each historical figure.",
+  "nodes": {
+    "1": "CheckpointLoaderSimple",
+    "2": "CLIPTextEncode positive",
+    "3": "CLIPTextEncode negative",
+    "4": "EmptyLatentImage",
+    "5": "KSampler",
+    "6": "VAEDecode",
+    "7": "SaveImage"
+  },
+  "defaultCheckpoint": "realisticvision-v6-sd15.safetensors",
+  "defaultSize": "512x704",
+  "defaultOutput": "assets/avatars/{personId}.png"
+}

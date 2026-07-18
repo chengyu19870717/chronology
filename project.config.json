@@ -1,0 +1,70 @@
+{
+  "appid": "wxb9fce30a45fea09b",
+  "projectname": "中国编年史速查表",
+  "description": "离线可用的中国历史朝代与重大事件速查小程序",
+  "versionName": "1.0.0",
+  "compileType": "miniprogram",
+  "libVersion": "3.16.1",
+  "srcMiniprogramRoot": "./",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "compileWorklet": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": true,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false,
+    "swc": false,
+    "disableSWC": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "condition": {},
+  "simulatorPluginLibVersion": {},
+  "packOptions": {
+    "ignore": [
+      {
+        "type": "folder",
+        "value": "assets/avatar-sources"
+      },
+      {
+        "type": "folder",
+        "value": "scripts"
+      },
+      {
+        "type": "folder",
+        "value": "workflows"
+      },
+      {
+        "type": "file",
+        "value": "README.md"
+      },
+      {
+        "type": "file",
+        "value": "COMFYUI_STATUS.md"
+      },
+      {
+        "type": "file",
+        "value": "assets/avatars/README.md"
+      },
+      {
+        "type": "file",
+        "value": "assets/avatars/.gitkeep"
+      }
+    ],
+    "include": []
+  },
+  "editorSetting": {}
+}

@@ -1,0 +1,152 @@
+.detail-page {
+  padding-bottom: 40rpx;
+}
+
+.detail-hero {
+  padding: 34rpx 30rpx;
+  border-radius: 16rpx;
+  background: #FFFFFF;
+  border: 2rpx solid #EFE3D0;
+  box-shadow: 0 12rpx 32rpx var(--shadow);
+}
+
+.date-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 46rpx;
+  padding: 0 16rpx;
+  border-radius: 8rpx;
+  background: #FFF0ED;
+  color: var(--cinnabar);
+  font-size: 24rpx;
+  font-weight: 800;
+}
+
+.detail-title {
+  margin-top: 18rpx;
+  color: var(--night);
+  font-size: 52rpx;
+  font-weight: 900;
+  line-height: 1.18;
+}
+
+.detail-summary {
+  margin-top: 18rpx;
+  color: #3E4A52;
+  font-size: 28rpx;
+  line-height: 1.65;
+}
+
+.detail-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+  margin-top: 28rpx;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14rpx;
+  margin-top: 22rpx;
+}
+
+.info-cell {
+  padding: 22rpx 24rpx;
+  border-radius: 16rpx;
+  background: #FFFFFF;
+  border: 2rpx solid #EFE3D0;
+}
+
+.info-label,
+.info-value {
+  display: block;
+}
+
+.info-label {
+  color: var(--bronze);
+  font-size: 23rpx;
+  font-weight: 800;
+}
+
+.info-value {
+  margin-top: 8rpx;
+  color: var(--ink);
+  font-size: 28rpx;
+  line-height: 1.45;
+}
+
+.section {
+  margin-top: 22rpx;
+  padding: 26rpx 24rpx;
+  border-radius: 16rpx;
+  background: #FFFFFF;
+  border: 2rpx solid #EFE3D0;
+}
+
+.section-title {
+  color: var(--night);
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.point-row {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 20rpx;
+}
+
+.point-dot {
+  flex: 0 0 auto;
+  width: 14rpx;
+  height: 14rpx;
+  margin-top: 14rpx;
+  border-radius: 50%;
+  background: var(--cinnabar);
+}
+
+.point-text {
+  flex: 1;
+  margin-left: 16rpx;
+  color: #3E4A52;
+  font-size: 27rpx;
+  line-height: 1.6;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 18rpx;
+}
+
+.person-tag {
+  background: #EAF4F2;
+  color: var(--jade);
+}
+
+.missing-page {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.missing-title {
+  color: var(--night);
+  font-size: 36rpx;
+  font-weight: 900;
+}
+
+.missing-copy {
+  margin-top: 14rpx;
+  color: var(--muted);
+  font-size: 26rpx;
+}
+
+.missing-button {
+  width: 220rpx;
+  margin-top: 28rpx;
+}

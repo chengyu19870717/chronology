@@ -1,0 +1,34 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/event/event"
+  ],
+  "subpackages": [
+    {
+      "root": "person-package",
+      "name": "personDetail",
+      "pages": [
+        "pages/person/person"
+      ]
+    },
+    {
+      "root": "curriculum-package",
+      "name": "curriculumDetail",
+      "pages": [
+        "pages/person/person",
+        "pages/event/event"
+      ]
+    }
+  ],
+  "entryPagePath": "pages/index/index",
+  "window": {
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTitleText": "中国编年史速查表",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F2F4F3",
+    "backgroundTextStyle": "dark"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

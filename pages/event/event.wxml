@@ -1,0 +1,105 @@
+<view wx:if="{{event}}" class="page event-page">
+  <view class="event-hero">
+    <view class="date-pill">{{event.dateText}}</view>
+    <view class="event-title">{{event.name}}</view>
+    <view class="event-period">{{event.periodLabel}}</view>
+    <view class="event-summary">{{event.summary}}</view>
+    <view class="label-row">
+      <text wx:for="{{event.tags}}" wx:key="*this" class="tag">{{item}}</text>
+    </view>
+  </view>
+
+  <view class="tab-row">
+    <button
+      wx:for="{{tabs}}"
+      wx:key="id"
+      class="tab-button {{activeTab === item.id ? 'is-active' : ''}}"
+      data-id="{{item.id}}"
+      aria-label="查看{{item.name}}"
+      catchtap="switchTab"
+    >
+      {{item.name}}
+    </button>
+  </view>
+
+  <view wx:if="{{activeTab === 'context'}}" class="section">
+    <view class="section-title">事件脉络</view>
+    <view class="flow-card">
+      <view class="flow-index">01</view>
+      <view class="flow-main">
+      <view class="flow-label">背景</view>
+      <view class="flow-text">{{event.background}}</view>
+      </view>
+    </view>
+    <view class="flow-card">
+      <view class="flow-index">02</view>
+      <view class="flow-main">
+      <view class="flow-label">经过</view>
+      <view class="flow-text">{{event.process}}</view>
+      </view>
+    </view>
+    <view class="flow-card">
+      <view class="flow-index">03</view>
+      <view class="flow-main">
+      <view class="flow-label">结果</view>
+      <view class="flow-text">{{event.result}}</view>
+      </view>
+    </view>
+    <view class="flow-card is-impact">
+      <view class="flow-index">04</view>
+      <view class="flow-main">
+      <view class="flow-label">长期影响</view>
+      <view class="flow-text">{{event.impact}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:elif="{{activeTab === 'people'}}" class="section">
+    <view class="section-title">相关人物 · {{relatedPersons.length}}</view>
+    <view wx:for="{{relatedPersons}}" wx:key="id" class="person-card" data-id="{{item.id}}" bindtap="goPerson" hover-class="card-pressed" hover-stay-time="80">
+      <image wx:if="{{item.isFeaturedAvatar}}" class="person-avatar" src="{{item.avatarPath}}" mode="aspectFill" />
+      <view wx:else class="person-avatar person-avatar-fallback">{{item.avatarInitial}}</view>
+      <view class="person-top">
+        <view>
+          <view class="person-name">{{item.name}}</view>
+          <view class="person-meta">{{item.lifeText}} · {{item.categoryText}}</view>
+        </view>
+        <view class="arrow-mark">›</view>
+      </view>
+      <view class="person-summary">{{item.summary}}</view>
+      <view class="cross-text">跨越：{{item.crossText}}</view>
+    </view>
+    <view wx:if="{{!relatedPersons.length}}" class="empty-note">暂无可核对的关联人物资料。</view>
+  </view>
+
+  <view wx:else class="section">
+    <view class="section-title">争议与多视角</view>
+    <scroll-view wx:if="{{event.disputeTabs.length}}" class="dispute-tabs" scroll-x="true" show-scrollbar="false">
+      <view class="dispute-row">
+        <button
+          wx:for="{{event.disputeTabs}}"
+          wx:key="title"
+          class="dispute-button {{index === activeDisputeIndex ? 'is-active' : ''}}"
+          data-index="{{index}}"
+          catchtap="switchDispute"
+        >
+          {{item.title}}
+        </button>
+      </view>
+    </scroll-view>
+    <view wx:if="{{event.disputeTabs.length}}" class="debate-card">
+      <view class="debate-title">{{activeDispute.title}}</view>
+      <view class="debate-text">{{activeDispute.body}}</view>
+    </view>
+    <view wx:else class="empty-note">暂无需要单列的主要争议观点。</view>
+  </view>
+
+  <view class="safe-bottom"></view>
+  <button wx:if="{{showBackTop}}" class="back-top-button" aria-label="返回顶部" catchtap="scrollToTop">↑</button>
+</view>
+
+<view wx:else class="page missing-page">
+  <view class="missing-title">事件不存在</view>
+  <view class="missing-copy">请返回首页重新选择。</view>
+  <button class="primary-button missing-button" bindtap="goBack">返回</button>
+</view>

@@ -1,0 +1,508 @@
+function ruler(config) {
+  const aliases = config.aliases || [];
+  const tags = config.tags || [];
+  return {
+    type: 'ruler',
+    linkedPersonId: '',
+    status: 'timeline',
+    aliases,
+    tags,
+    searchText: '',
+    ...config,
+  };
+}
+
+function group(dynastyId, polity, entries) {
+  return entries.map((entry, index) => ruler({
+    dynastyId,
+    polity: entry.polity || polity,
+    order: entry.order || index + 1,
+    id: entry.id,
+    name: entry.name,
+    personalName: entry.personalName || '',
+    reignText: entry.reignText,
+    lifeText: entry.lifeText || '',
+    aliases: entry.aliases || [],
+    tags: entry.tags || [],
+    linkedPersonId: entry.linkedPersonId || '',
+    recordBasis: entry.recordBasis || '正史本纪与通行帝王世系',
+    rulerClass: entry.rulerClass || 'canonical',
+    summary: entry.summary || `${entry.name}是${entry.polity || polity}统治序列中的君主，在位阶段为${entry.reignText}。`,
+  }));
+}
+
+const rulers = [
+  ...group('xia', '夏', [
+    { id: 'ruler-xia-yu', name: '禹', personalName: '姒文命', reignText: '传说时代', aliases: ['大禹'], linkedPersonId: 'da-yu', tags: ['传说时代', '史实存疑'], summary: '传统叙事中的治水英雄和夏朝开创者，年代与事迹需结合文献和考古谨慎理解。' },
+    { id: 'ruler-xia-qi', name: '启', personalName: '姒启', reignText: '传说时代', aliases: ['夏启'], linkedPersonId: 'qi-of-xia', tags: ['传说时代', '世袭叙事'] },
+    { id: 'ruler-xia-taikang', name: '太康', reignText: '传说时代', tags: ['传说时代', '史实存疑'] },
+    { id: 'ruler-xia-shaokang', name: '少康', reignText: '传说时代', tags: ['传说时代', '中兴叙事'] },
+    { id: 'ruler-xia-jie', name: '桀', personalName: '履癸', reignText: '传说时代', aliases: ['夏桀'], linkedPersonId: 'jie-of-xia', tags: ['末代君主', '传说时代'] },
+  ]),
+
+  ...group('shang', '商', [
+    { id: 'ruler-shang-tang', name: '商汤', personalName: '成汤', reignText: '约前17-前16世纪', aliases: ['成汤', '汤'], linkedPersonId: 'cheng-tang', tags: ['开国君主'] },
+    { id: 'ruler-shang-taijia', name: '太甲', reignText: '商初', tags: ['商王'] },
+    { id: 'ruler-shang-pan-geng', name: '盘庚', reignText: '商中后期', linkedPersonId: 'pan-geng', tags: ['迁都'] },
+    { id: 'ruler-shang-wu-ding', name: '武丁', reignText: '商后期', linkedPersonId: 'wu-ding', tags: ['武丁中兴'] },
+    { id: 'ruler-shang-di-xin', name: '帝辛', personalName: '子受', reignText: '？-前1046年', aliases: ['商纣王', '纣王'], linkedPersonId: 'shang-zhou-wang', tags: ['末代君主'] },
+  ]),
+
+  ...group('western-zhou', '西周', [
+    { id: 'ruler-zhou-wen', name: '周文王', personalName: '姬昌', reignText: '商末周族领袖', linkedPersonId: 'king-wen-zhou', tags: ['奠基人物'] },
+    { id: 'ruler-zhou-wu', name: '周武王', personalName: '姬发', reignText: '约前1046-约前1043年', linkedPersonId: 'king-wu-zhou', tags: ['开国君主'] },
+    { id: 'ruler-zhou-cheng', name: '周成王', personalName: '姬诵', reignText: '西周初', tags: ['成康之治'] },
+    { id: 'ruler-zhou-kang', name: '周康王', personalName: '姬钊', reignText: '西周初', tags: ['成康之治'] },
+    { id: 'ruler-zhou-li', name: '周厉王', personalName: '姬胡', reignText: '？-前841年', tags: ['共和行政'] },
+    { id: 'ruler-zhou-xuan', name: '周宣王', personalName: '姬静', reignText: '前827-前782年', tags: ['宣王中兴'] },
+    { id: 'ruler-zhou-you', name: '周幽王', personalName: '姬宫湦', reignText: '前781-前771年', linkedPersonId: 'king-you-zhou', tags: ['末代君主'] },
+  ]),
+
+  ...group('eastern-zhou', '东周', [
+    { id: 'ruler-zhou-ping', name: '周平王', personalName: '姬宜臼', reignText: '前770-前720年', tags: ['东周开端'] },
+    { id: 'ruler-qi-huan', name: '齐桓公', personalName: '姜小白', reignText: '前685-前643年', linkedPersonId: 'qi-huan-gong', tags: ['春秋霸主'] },
+    { id: 'ruler-jin-wen', name: '晋文公', personalName: '姬重耳', reignText: '前636-前628年', linkedPersonId: 'jin-wen-gong', tags: ['春秋霸主'] },
+    { id: 'ruler-chu-zhuang', name: '楚庄王', personalName: '熊侣', reignText: '前613-前591年', linkedPersonId: 'chu-zhuang-wang', tags: ['春秋霸主'] },
+    { id: 'ruler-goujian', name: '越王勾践', personalName: '勾践', reignText: '前496-前465年', linkedPersonId: 'goujian', tags: ['吴越争霸'] },
+    { id: 'ruler-wei-wen', name: '魏文侯', personalName: '魏斯', reignText: '前445-前396年', linkedPersonId: 'wei-wen-hou', tags: ['战国改革'] },
+    { id: 'ruler-qin-xiao', name: '秦孝公', personalName: '嬴渠梁', reignText: '前361-前338年', linkedPersonId: 'qin-xiao-gong', tags: ['商鞅变法'] },
+    { id: 'ruler-qin-zhaoxiang', name: '秦昭襄王', personalName: '嬴稷', reignText: '前306-前251年', linkedPersonId: 'qin-zhao-xiang-wang', tags: ['秦国东进'] },
+    { id: 'ruler-zhou-nan', name: '周赧王', personalName: '姬延', reignText: '前314-前256年', tags: ['东周末代'] },
+  ]),
+
+  ...group('qin', '秦', [
+    { id: 'ruler-qin-shi-huang', name: '秦始皇', personalName: '嬴政', reignText: '前221-前210年', aliases: ['始皇帝', '秦王政'], linkedPersonId: 'qin-shi-huang', tags: ['皇帝制度', '大一统'] },
+    { id: 'ruler-qin-er-shi', name: '秦二世', personalName: '胡亥', reignText: '前210-前207年', aliases: ['胡亥'], linkedPersonId: 'qin-er-shi', tags: ['秦末危机'] },
+    { id: 'ruler-qin-zi-ying', name: '子婴', reignText: '前207年', aliases: ['秦王子婴'], linkedPersonId: 'zi-ying', tags: ['秦亡'] },
+  ]),
+
+  ...group('western-han', '西汉', [
+    { id: 'ruler-han-gaozu', name: '汉高祖', personalName: '刘邦', reignText: '前202-前195年', aliases: ['刘邦', '高帝'], linkedPersonId: 'liu-bang', tags: ['开国君主'] },
+    { id: 'ruler-han-huidi', name: '汉惠帝', personalName: '刘盈', reignText: '前195-前188年', tags: ['吕后时期'] },
+    { id: 'ruler-lu-hou', name: '吕后', personalName: '吕雉', reignText: '前188-前180年摄政', aliases: ['吕太后'], tags: ['摄政', '女性政治人物'] },
+    { id: 'ruler-han-wendi', name: '汉文帝', personalName: '刘恒', reignText: '前180-前157年', linkedPersonId: 'han-wen-di', tags: ['文景之治'] },
+    { id: 'ruler-han-jingdi', name: '汉景帝', personalName: '刘启', reignText: '前157-前141年', linkedPersonId: 'han-jing-di', tags: ['文景之治', '七国之乱'] },
+    { id: 'ruler-han-wudi', name: '汉武帝', personalName: '刘彻', reignText: '前141-前87年', linkedPersonId: 'han-wu-di', tags: ['推恩令', '丝绸之路'] },
+    { id: 'ruler-han-zhaodi', name: '汉昭帝', personalName: '刘弗陵', reignText: '前87-前74年', tags: ['霍光辅政'] },
+    { id: 'ruler-han-xuandi', name: '汉宣帝', personalName: '刘询', reignText: '前74-前49年', linkedPersonId: 'han-xuan-di', tags: ['昭宣中兴'] },
+    { id: 'ruler-han-yuandi', name: '汉元帝', personalName: '刘奭', reignText: '前49-前33年', tags: ['西汉后期'] },
+    { id: 'ruler-han-chengdi', name: '汉成帝', personalName: '刘骜', reignText: '前33-前7年', tags: ['外戚政治'] },
+    { id: 'ruler-han-aidi', name: '汉哀帝', personalName: '刘欣', reignText: '前7-前1年', tags: ['西汉后期'] },
+    { id: 'ruler-han-pingdi', name: '汉平帝', personalName: '刘衎', reignText: '前1-6年', tags: ['王莽摄政'] },
+    { id: 'ruler-han-ruzi', name: '孺子婴', personalName: '刘婴', reignText: '6-8年', tags: ['王莽摄政'] },
+  ]),
+
+  ...group('xin', '新', [
+    { id: 'ruler-wang-mang', name: '王莽', personalName: '王莽', reignText: '8-23年', linkedPersonId: 'wang-mang', tags: ['新朝', '改制'] },
+  ]),
+
+  ...group('eastern-han', '东汉', [
+    { id: 'ruler-guangwu', name: '光武帝', personalName: '刘秀', reignText: '25-57年', aliases: ['汉光武帝'], linkedPersonId: 'liu-xiu', tags: ['开国君主', '光武中兴'] },
+    { id: 'ruler-han-mingdi', name: '汉明帝', personalName: '刘庄', reignText: '57-75年', tags: ['明章之治'] },
+    { id: 'ruler-han-zhangdi', name: '汉章帝', personalName: '刘炟', reignText: '75-88年', tags: ['明章之治'] },
+    { id: 'ruler-han-hedi', name: '汉和帝', personalName: '刘肇', reignText: '88-105年', tags: ['东汉中期'] },
+    { id: 'ruler-han-shangdi', name: '汉殇帝', personalName: '刘隆', reignText: '106年', tags: ['幼帝'] },
+    { id: 'ruler-han-andi', name: '汉安帝', personalName: '刘祜', reignText: '106-125年', tags: ['外戚宦官'] },
+    { id: 'ruler-han-shundi', name: '汉顺帝', personalName: '刘保', reignText: '125-144年', tags: ['东汉中后期'] },
+    { id: 'ruler-han-chongdi', name: '汉冲帝', personalName: '刘炳', reignText: '144-145年', tags: ['幼帝'] },
+    { id: 'ruler-han-zhidi', name: '汉质帝', personalName: '刘缵', reignText: '145-146年', tags: ['幼帝'] },
+    { id: 'ruler-han-huandi', name: '汉桓帝', personalName: '刘志', reignText: '146-168年', tags: ['党锢之祸'] },
+    { id: 'ruler-han-lingdi', name: '汉灵帝', personalName: '刘宏', reignText: '168-189年', tags: ['黄巾起义前夜'] },
+    { id: 'ruler-han-xiandi', name: '汉献帝', personalName: '刘协', reignText: '189-220年', tags: ['东汉末代'] },
+  ]),
+
+  ...group('three-kingdoms', '三国魏', [
+    { id: 'ruler-wei-wendi', name: '魏文帝', personalName: '曹丕', reignText: '220-226年', aliases: ['曹丕'], tags: ['曹魏开国'] },
+    { id: 'ruler-wei-mingdi', name: '魏明帝', personalName: '曹叡', reignText: '226-239年', tags: ['曹魏'] },
+    { id: 'ruler-wei-shaodi', name: '魏少帝', personalName: '曹芳', reignText: '239-254年', aliases: ['曹芳', '齐王'], tags: ['曹魏'] },
+    { id: 'ruler-wei-gaogui', name: '高贵乡公', personalName: '曹髦', reignText: '254-260年', aliases: ['曹髦'], tags: ['曹魏后期'] },
+    { id: 'ruler-wei-yuandi', name: '魏元帝', personalName: '曹奂', reignText: '260-266年', tags: ['曹魏末代'] },
+  ]),
+  ...group('three-kingdoms', '蜀汉', [
+    { id: 'ruler-shu-liubei', name: '汉昭烈帝', personalName: '刘备', reignText: '221-223年', aliases: ['刘备', '蜀汉先主'], linkedPersonId: 'liu-bei', tags: ['蜀汉开国'] },
+    { id: 'ruler-shu-liushan', name: '蜀汉后主', personalName: '刘禅', reignText: '223-263年', aliases: ['刘禅', '后主'], tags: ['蜀汉末代'] },
+  ]),
+  ...group('three-kingdoms', '孙吴', [
+    { id: 'ruler-wu-sunquan', name: '吴大帝', personalName: '孙权', reignText: '222-252年', aliases: ['孙权'], linkedPersonId: 'sun-quan', tags: ['孙吴开国'] },
+    { id: 'ruler-wu-sunliang', name: '会稽王', personalName: '孙亮', reignText: '252-258年', aliases: ['孙亮'], tags: ['孙吴'] },
+    { id: 'ruler-wu-sunxiu', name: '吴景帝', personalName: '孙休', reignText: '258-264年', tags: ['孙吴'] },
+    { id: 'ruler-wu-sunhao', name: '吴末帝', personalName: '孙皓', reignText: '264-280年', tags: ['孙吴末代'] },
+  ]),
+
+  ...group('western-jin', '西晋', [
+    { id: 'ruler-jin-wudi', name: '晋武帝', personalName: '司马炎', reignText: '266-290年', linkedPersonId: 'sima-yan', tags: ['西晋开国', '统一'] },
+    { id: 'ruler-jin-huidi', name: '晋惠帝', personalName: '司马衷', reignText: '290-306年', tags: ['八王之乱'] },
+    { id: 'ruler-jin-huaidi', name: '晋怀帝', personalName: '司马炽', reignText: '307-313年', tags: ['永嘉之乱'] },
+    { id: 'ruler-jin-mindi', name: '晋愍帝', personalName: '司马邺', reignText: '313-316年', tags: ['西晋末代'] },
+  ]),
+
+  ...group('eastern-jin-sixteen', '东晋', [
+    { id: 'ruler-ejin-yuandi', name: '晋元帝', personalName: '司马睿', reignText: '317-323年', tags: ['东晋开国'] },
+    { id: 'ruler-ejin-mingdi', name: '晋明帝', personalName: '司马绍', reignText: '323-325年', tags: ['东晋'] },
+    { id: 'ruler-ejin-chengdi', name: '晋成帝', personalName: '司马衍', reignText: '325-342年', tags: ['门阀政治'] },
+    { id: 'ruler-ejin-jianwen', name: '晋简文帝', personalName: '司马昱', reignText: '371-372年', tags: ['东晋'] },
+    { id: 'ruler-ejin-xiaowu', name: '晋孝武帝', personalName: '司马曜', reignText: '372-396年', tags: ['淝水之战'] },
+    { id: 'ruler-fuqin-fujian', name: '苻坚', personalName: '苻坚', reignText: '357-385年', polity: '前秦', linkedPersonId: 'fu-jian', tags: ['十六国', '淝水之战'] },
+  ]),
+
+  ...group('southern-northern', '南北朝', [
+    { id: 'ruler-liu-song-wudi', name: '宋武帝', personalName: '刘裕', reignText: '420-422年', polity: '南朝宋', tags: ['南朝开端'] },
+    { id: 'ruler-liu-song-wendi', name: '宋文帝', personalName: '刘义隆', reignText: '424-453年', polity: '南朝宋', tags: ['元嘉之治'] },
+    { id: 'ruler-nanqi-gaodi', name: '齐高帝', personalName: '萧道成', reignText: '479-482年', polity: '南朝齐', tags: ['南朝齐'] },
+    { id: 'ruler-liang-wudi', name: '梁武帝', personalName: '萧衍', reignText: '502-549年', polity: '南朝梁', tags: ['南朝梁', '佛教'] },
+    { id: 'ruler-chen-wudi', name: '陈武帝', personalName: '陈霸先', reignText: '557-559年', polity: '南朝陈', tags: ['南朝陈'] },
+    { id: 'ruler-nwei-daowu', name: '北魏道武帝', personalName: '拓跋珪', reignText: '386-409年', polity: '北魏', tags: ['北魏开国'] },
+    { id: 'ruler-nwei-taiwu', name: '北魏太武帝', personalName: '拓跋焘', reignText: '423-452年', polity: '北魏', tags: ['统一北方'] },
+    { id: 'ruler-nwei-xiaowen', name: '北魏孝文帝', personalName: '拓跋宏', reignText: '471-499年', polity: '北魏', linkedPersonId: 'emperor-xiaowen-northern-wei', tags: ['汉化改革'] },
+    { id: 'ruler-nzhou-wudi', name: '北周武帝', personalName: '宇文邕', reignText: '560-578年', polity: '北周', tags: ['灭北齐'] },
+  ]),
+
+  ...group('sui', '隋', [
+    { id: 'ruler-sui-wendi', name: '隋文帝', personalName: '杨坚', reignText: '581-604年', linkedPersonId: 'sui-wen-di', tags: ['开国君主', '统一'] },
+    { id: 'ruler-sui-yangdi', name: '隋炀帝', personalName: '杨广', reignText: '604-618年', linkedPersonId: 'sui-yang-di', tags: ['大运河', '争议人物'] },
+    { id: 'ruler-sui-gongdi', name: '隋恭帝', personalName: '杨侑', reignText: '617-618年', tags: ['隋末'] },
+  ]),
+
+  ...group('tang', '唐', [
+    { id: 'ruler-tang-gaozu', name: '唐高祖', personalName: '李渊', reignText: '618-626年', linkedPersonId: 'tang-gaozu', tags: ['唐朝开国'] },
+    { id: 'ruler-tang-taizong', name: '唐太宗', personalName: '李世民', reignText: '626-649年', linkedPersonId: 'tang-taizong', tags: ['贞观之治'] },
+    { id: 'ruler-tang-gaozong', name: '唐高宗', personalName: '李治', reignText: '649-683年', linkedPersonId: 'tang-gaozong', tags: ['初唐'] },
+    { id: 'ruler-tang-zhongzong', name: '唐中宗', personalName: '李显', reignText: '683-684年、705-710年', tags: ['复位'] },
+    { id: 'ruler-tang-ruizong', name: '唐睿宗', personalName: '李旦', reignText: '684-690年、710-712年', tags: ['复位'] },
+    { id: 'ruler-wu-zetian', name: '武则天', personalName: '武曌', reignText: '690-705年', aliases: ['武周'], linkedPersonId: 'wu-zetian', tags: ['武周', '女性皇帝'] },
+    { id: 'ruler-tang-xuanzong', name: '唐玄宗', personalName: '李隆基', reignText: '712-756年', linkedPersonId: 'tang-xuanzong', tags: ['开元盛世', '安史之乱'] },
+    { id: 'ruler-tang-suzong', name: '唐肃宗', personalName: '李亨', reignText: '756-762年', tags: ['安史之乱'] },
+    { id: 'ruler-tang-daizong', name: '唐代宗', personalName: '李豫', reignText: '762-779年', tags: ['中唐'] },
+    { id: 'ruler-tang-dezong', name: '唐德宗', personalName: '李适', reignText: '779-805年', tags: ['藩镇'] },
+    { id: 'ruler-tang-xianzong', name: '唐宪宗', personalName: '李纯', reignText: '805-820年', tags: ['元和中兴'] },
+    { id: 'ruler-tang-wenzong', name: '唐文宗', personalName: '李昂', reignText: '826-840年', tags: ['甘露之变'] },
+    { id: 'ruler-tang-wuzong', name: '唐武宗', personalName: '李炎', reignText: '840-846年', tags: ['会昌灭佛'] },
+    { id: 'ruler-tang-xuanzong-late', name: '唐宣宗', personalName: '李忱', reignText: '846-859年', tags: ['大中之治'] },
+    { id: 'ruler-tang-zhaozong', name: '唐昭宗', personalName: '李晔', reignText: '888-904年', tags: ['唐末'] },
+    { id: 'ruler-tang-aidi', name: '唐哀帝', personalName: '李柷', reignText: '904-907年', tags: ['唐末代'] },
+  ]),
+
+  ...group('five-dynasties-ten-kingdoms', '五代十国', [
+    { id: 'ruler-later-liang-taizu', name: '后梁太祖', personalName: '朱温', reignText: '907-912年', polity: '后梁', aliases: ['朱温'], linkedPersonId: 'zhu-wen', tags: ['后梁', '五代十国'] },
+    { id: 'ruler-later-liang-modi', name: '后梁末帝', personalName: '朱友贞', reignText: '913-923年', polity: '后梁', tags: ['后梁', '五代十国'] },
+    { id: 'ruler-later-tang-zhuangzong', name: '后唐庄宗', personalName: '李存勖', reignText: '923-926年', polity: '后唐', linkedPersonId: 'li-cunxu', tags: ['后唐', '五代十国'] },
+    { id: 'ruler-later-tang-mingzong', name: '后唐明宗', personalName: '李嗣源', reignText: '926-933年', polity: '后唐', tags: ['后唐', '五代十国'] },
+    { id: 'ruler-later-jin-gaozu', name: '后晋高祖', personalName: '石敬瑭', reignText: '936-942年', polity: '后晋', linkedPersonId: 'shi-jingtang', tags: ['后晋', '燕云十六州'] },
+    { id: 'ruler-later-han-gaozu', name: '后汉高祖', personalName: '刘知远', reignText: '947-948年', polity: '后汉', tags: ['后汉', '五代十国'] },
+    { id: 'ruler-later-zhou-taizu', name: '后周太祖', personalName: '郭威', reignText: '951-954年', polity: '后周', tags: ['后周', '五代十国'] },
+    { id: 'ruler-later-zhou-shizong', name: '后周世宗', personalName: '柴荣', reignText: '954-959年', polity: '后周', linkedPersonId: 'chai-rong', tags: ['后周', '改革'] },
+    { id: 'ruler-southern-tang-liyu', name: '南唐后主', personalName: '李煜', reignText: '961-975年', polity: '南唐', aliases: ['李煜'], linkedPersonId: 'li-yu', tags: ['十国', '文学'] },
+  ]),
+
+  ...group('song-liao-jin-xixia', '宋', [
+    { id: 'ruler-song-taizu', name: '宋太祖', personalName: '赵匡胤', reignText: '960-976年', linkedPersonId: 'song-taizu', tags: ['北宋开国'] },
+    { id: 'ruler-song-taizong', name: '宋太宗', personalName: '赵光义', reignText: '976-997年', tags: ['北宋'] },
+    { id: 'ruler-song-zhenzong', name: '宋真宗', personalName: '赵恒', reignText: '997-1022年', tags: ['澶渊之盟'] },
+    { id: 'ruler-song-renzong', name: '宋仁宗', personalName: '赵祯', reignText: '1022-1063年', linkedPersonId: 'song-renzong', tags: ['仁宗朝'] },
+    { id: 'ruler-song-yingzong', name: '宋英宗', personalName: '赵曙', reignText: '1063-1067年', tags: ['北宋'] },
+    { id: 'ruler-song-shenzong', name: '宋神宗', personalName: '赵顼', reignText: '1067-1085年', linkedPersonId: 'song-shenzong', tags: ['王安石变法'] },
+    { id: 'ruler-song-zhezong', name: '宋哲宗', personalName: '赵煦', reignText: '1085-1100年', tags: ['新旧党争'] },
+    { id: 'ruler-song-huizong', name: '宋徽宗', personalName: '赵佶', reignText: '1100-1126年', linkedPersonId: 'song-huizong', tags: ['靖康之变'] },
+    { id: 'ruler-song-qinzong', name: '宋钦宗', personalName: '赵桓', reignText: '1126-1127年', tags: ['北宋末代'] },
+    { id: 'ruler-song-gaozong', name: '宋高宗', personalName: '赵构', reignText: '1127-1162年', linkedPersonId: 'song-gaozong', tags: ['南宋开国'] },
+    { id: 'ruler-song-xiaozong', name: '宋孝宗', personalName: '赵昚', reignText: '1162-1189年', tags: ['乾淳之治'] },
+    { id: 'ruler-song-ningzong', name: '宋宁宗', personalName: '赵扩', reignText: '1194-1224年', tags: ['南宋'] },
+    { id: 'ruler-song-lizong', name: '宋理宗', personalName: '赵昀', reignText: '1224-1264年', tags: ['南宋后期'] },
+    { id: 'ruler-song-duzong', name: '宋度宗', personalName: '赵禥', reignText: '1264-1274年', tags: ['南宋后期'] },
+    { id: 'ruler-song-gongdi', name: '宋恭帝', personalName: '赵㬎', reignText: '1274-1276年', tags: ['南宋末年'] },
+    { id: 'ruler-song-duanzong', name: '宋端宗', personalName: '赵昰', reignText: '1276-1278年', tags: ['南宋末年'] },
+    { id: 'ruler-song-bing', name: '宋末帝', personalName: '赵昺', reignText: '1278-1279年', aliases: ['赵昺'], tags: ['宋亡'] },
+  ]),
+  ...group('song-liao-jin-xixia', '辽', [
+    { id: 'ruler-liao-taizu', name: '辽太祖', personalName: '耶律阿保机', reignText: '907-926年', linkedPersonId: 'yelv-abaoji', tags: ['辽开国'] },
+    { id: 'ruler-liao-taizong', name: '辽太宗', personalName: '耶律德光', reignText: '927-947年', tags: ['辽'] },
+    { id: 'ruler-liao-shengzong', name: '辽圣宗', personalName: '耶律隆绪', reignText: '982-1031年', tags: ['澶渊之盟'] },
+    { id: 'ruler-liao-daozong', name: '辽道宗', personalName: '耶律洪基', reignText: '1055-1101年', tags: ['辽后期'] },
+    { id: 'ruler-liao-tianzuo', name: '辽天祚帝', personalName: '耶律延禧', reignText: '1101-1125年', tags: ['辽末代'] },
+  ]),
+  ...group('song-liao-jin-xixia', '西夏', [
+    { id: 'ruler-xixia-yuanhao', name: '西夏景宗', personalName: '元昊', reignText: '1038-1048年', aliases: ['李元昊', '元昊'], linkedPersonId: 'yuan-hao', tags: ['西夏建国'] },
+    { id: 'ruler-xixia-renzong', name: '西夏仁宗', personalName: '李仁孝', reignText: '1139-1193年', tags: ['西夏'] },
+    { id: 'ruler-xixia-modi', name: '西夏末帝', personalName: '李睍', reignText: '1226-1227年', tags: ['西夏末代'] },
+  ]),
+  ...group('song-liao-jin-xixia', '金', [
+    { id: 'ruler-jin-taizu', name: '金太祖', personalName: '完颜阿骨打', reignText: '1115-1123年', linkedPersonId: 'wanyan-aguda', tags: ['金开国'] },
+    { id: 'ruler-jin-taizong', name: '金太宗', personalName: '完颜晟', reignText: '1123-1135年', tags: ['灭辽灭北宋'] },
+    { id: 'ruler-jin-shizong', name: '金世宗', personalName: '完颜雍', reignText: '1161-1189年', tags: ['大定之治'] },
+    { id: 'ruler-jin-aizong', name: '金哀宗', personalName: '完颜守绪', reignText: '1224-1234年', tags: ['金末'] },
+  ]),
+
+  ...group('yuan', '元', [
+    { id: 'ruler-yuan-shizu', name: '元世祖', personalName: '孛儿只斤·忽必烈', reignText: '1260-1294年', aliases: ['忽必烈'], linkedPersonId: 'kublai-khan', tags: ['元朝建立'] },
+    { id: 'ruler-yuan-chengzong', name: '元成宗', personalName: '孛儿只斤·铁穆耳', reignText: '1294-1307年', aliases: ['铁穆耳'], tags: ['元'] },
+    { id: 'ruler-yuan-wuzong', name: '元武宗', personalName: '孛儿只斤·海山', reignText: '1307-1311年', aliases: ['海山'], tags: ['元'] },
+    { id: 'ruler-yuan-renzong', name: '元仁宗', personalName: '孛儿只斤·爱育黎拔力八达', reignText: '1311-1320年', aliases: ['爱育黎拔力八达'], tags: ['元'] },
+    { id: 'ruler-yuan-yingzong', name: '元英宗', personalName: '孛儿只斤·硕德八剌', reignText: '1320-1323年', aliases: ['硕德八剌'], tags: ['元'] },
+    { id: 'ruler-yuan-wenzong', name: '元文宗', personalName: '孛儿只斤·图帖睦尔', reignText: '1328-1332年', aliases: ['图帖睦尔'], tags: ['元'] },
+    { id: 'ruler-yuan-shundi', name: '元顺帝', personalName: '孛儿只斤·妥懽帖睦尔', reignText: '1333-1368年', aliases: ['妥懽帖睦尔'], tags: ['元末代'] },
+  ]),
+
+  ...group('ming', '明', [
+    { id: 'ruler-ming-taizu', name: '明太祖', personalName: '朱元璋', reignText: '1368-1398年', linkedPersonId: 'ming-taizu', tags: ['明朝开国', '洪武'] },
+    { id: 'ruler-ming-jianwen', name: '建文帝', personalName: '朱允炆', reignText: '1398-1402年', tags: ['靖难之役'] },
+    { id: 'ruler-ming-chengzu', name: '明成祖', personalName: '朱棣', reignText: '1402-1424年', aliases: ['永乐帝'], linkedPersonId: 'ming-chengzu', tags: ['永乐', '郑和下西洋'] },
+    { id: 'ruler-ming-renzong', name: '明仁宗', personalName: '朱高炽', reignText: '1424-1425年', tags: ['仁宣之治'] },
+    { id: 'ruler-ming-xuanzong', name: '明宣宗', personalName: '朱瞻基', reignText: '1425-1435年', tags: ['仁宣之治'] },
+    { id: 'ruler-ming-yingzong', name: '明英宗', personalName: '朱祁镇', reignText: '1435-1449年、1457-1464年', linkedPersonId: 'ming-yingzong', tags: ['土木之变', '夺门之变'] },
+    { id: 'ruler-ming-daizong', name: '明代宗', personalName: '朱祁钰', reignText: '1449-1457年', tags: ['北京保卫战'] },
+    { id: 'ruler-ming-xianzong', name: '明宪宗', personalName: '朱见深', reignText: '1464-1487年', tags: ['成化'] },
+    { id: 'ruler-ming-xiaozong', name: '明孝宗', personalName: '朱祐樘', reignText: '1487-1505年', tags: ['弘治中兴'] },
+    { id: 'ruler-ming-wuzong', name: '明武宗', personalName: '朱厚照', reignText: '1505-1521年', tags: ['正德'] },
+    { id: 'ruler-ming-shizong', name: '明世宗', personalName: '朱厚熜', reignText: '1521-1567年', tags: ['嘉靖'] },
+    { id: 'ruler-ming-muzong', name: '明穆宗', personalName: '朱载坖', reignText: '1567-1572年', tags: ['隆庆开关'] },
+    { id: 'ruler-ming-shenzong', name: '明神宗', personalName: '朱翊钧', reignText: '1572-1620年', aliases: ['万历帝'], linkedPersonId: 'ming-shenzong', tags: ['万历', '张居正改革'] },
+    { id: 'ruler-ming-guangzong', name: '明光宗', personalName: '朱常洛', reignText: '1620年', tags: ['泰昌'] },
+    { id: 'ruler-ming-xizong', name: '明熹宗', personalName: '朱由校', reignText: '1620-1627年', tags: ['天启'] },
+    { id: 'ruler-ming-sizong', name: '崇祯帝', personalName: '朱由检', reignText: '1627-1644年', aliases: ['明思宗'], tags: ['明末代'] },
+  ]),
+
+  ...group('qing', '清', [
+    { id: 'ruler-qing-nurhaci', name: '努尔哈赤', personalName: '爱新觉罗·努尔哈赤', reignText: '1616-1626年', aliases: ['清太祖'], linkedPersonId: 'nurhaci', tags: ['后金'] },
+    { id: 'ruler-qing-hongtaiji', name: '皇太极', personalName: '爱新觉罗·皇太极', reignText: '1626-1643年', aliases: ['清太宗'], linkedPersonId: 'hong-taiji', tags: ['清朝建号'] },
+    { id: 'ruler-qing-shunzhi', name: '顺治帝', personalName: '爱新觉罗·福临', reignText: '1643-1661年', linkedPersonId: 'shunzhi-emperor', tags: ['清入关'] },
+    { id: 'ruler-qing-kangxi', name: '康熙帝', personalName: '爱新觉罗·玄烨', reignText: '1661-1722年', linkedPersonId: 'kangxi-emperor', tags: ['康熙', '统一巩固'] },
+    { id: 'ruler-qing-yongzheng', name: '雍正帝', personalName: '爱新觉罗·胤禛', reignText: '1722-1735年', linkedPersonId: 'yongzheng-emperor', tags: ['军机处', '摊丁入亩'] },
+    { id: 'ruler-qing-qianlong', name: '乾隆帝', personalName: '爱新觉罗·弘历', reignText: '1735-1796年', linkedPersonId: 'qianlong-emperor', tags: ['乾隆', '康乾时期'] },
+    { id: 'ruler-qing-jiaqing', name: '嘉庆帝', personalName: '爱新觉罗·颙琰', reignText: '1796-1820年', tags: ['清中后期'] },
+    { id: 'ruler-qing-daoguang', name: '道光帝', personalName: '爱新觉罗·旻宁', reignText: '1820-1850年', linkedPersonId: 'daoguang-emperor', tags: ['鸦片战争'] },
+    { id: 'ruler-qing-xianfeng', name: '咸丰帝', personalName: '爱新觉罗·奕詝', reignText: '1850-1861年', tags: ['太平天国', '第二次鸦片战争'] },
+    { id: 'ruler-qing-tongzhi', name: '同治帝', personalName: '爱新觉罗·载淳', reignText: '1861-1875年', tags: ['同治中兴'] },
+    { id: 'ruler-qing-guangxu', name: '光绪帝', personalName: '爱新觉罗·载湉', reignText: '1875-1908年', linkedPersonId: 'guangxu-emperor', tags: ['戊戌变法'] },
+    { id: 'ruler-qing-xuantong', name: '宣统帝', personalName: '爱新觉罗·溥仪', reignText: '1908-1912年', aliases: ['溥仪'], tags: ['清末代'] },
+  ]),
+];
+
+const rulerSupplements = [
+  ...group('xia', '夏', [
+    { id: 'ruler-xia-zhongkang', name: '仲康', reignText: '传说时代', tags: ['夏后氏', '史实存疑'] },
+    { id: 'ruler-xia-xiang', name: '相', reignText: '传说时代', tags: ['夏后氏', '史实存疑'] },
+    { id: 'ruler-xia-zhu', name: '杼', reignText: '传说时代', tags: ['夏后氏', '史实存疑'] },
+    { id: 'ruler-xia-huai', name: '槐', reignText: '传说时代', tags: ['夏后氏', '史实存疑'] },
+    { id: 'ruler-xia-mang', name: '芒', reignText: '传说时代', tags: ['夏后氏', '史实存疑'] },
+    { id: 'ruler-xia-xie', name: '泄', reignText: '传说时代', tags: ['夏后氏', '史实存疑'] },
+    { id: 'ruler-xia-bujiang', name: '不降', reignText: '传说时代', tags: ['夏后氏', '史实存疑'] },
+    { id: 'ruler-xia-jiong', name: '扃', reignText: '传说时代', tags: ['夏后氏', '史实存疑'] },
+    { id: 'ruler-xia-jin', name: '廑', reignText: '传说时代', tags: ['夏后氏', '史实存疑'] },
+    { id: 'ruler-xia-kongjia', name: '孔甲', reignText: '传说时代', tags: ['夏后氏', '史实存疑'] },
+    { id: 'ruler-xia-gao', name: '皋', reignText: '传说时代', tags: ['夏后氏', '史实存疑'] },
+    { id: 'ruler-xia-fa', name: '发', reignText: '传说时代', tags: ['夏后氏', '史实存疑'] },
+  ]),
+  ...group('shang', '商', [
+    { id: 'ruler-shang-waibing', name: '外丙', reignText: '商初', tags: ['商王'] },
+    { id: 'ruler-shang-zhongren', name: '仲壬', reignText: '商初', tags: ['商王'] },
+    { id: 'ruler-shang-woding', name: '沃丁', reignText: '商代', tags: ['商王'] },
+    { id: 'ruler-shang-taigeng', name: '太庚', reignText: '商代', tags: ['商王'] },
+    { id: 'ruler-shang-xiaojia', name: '小甲', reignText: '商代', tags: ['商王'] },
+    { id: 'ruler-shang-yongji', name: '雍己', reignText: '商代', tags: ['商王'] },
+    { id: 'ruler-shang-taiwu', name: '太戊', reignText: '商代', tags: ['商王'] },
+    { id: 'ruler-shang-zhongding', name: '仲丁', reignText: '商代', tags: ['商王'] },
+    { id: 'ruler-shang-wairen', name: '外壬', reignText: '商代', tags: ['商王'] },
+    { id: 'ruler-shang-hedanjia', name: '河亶甲', reignText: '商代', tags: ['商王'] },
+    { id: 'ruler-shang-zuyi', name: '祖乙', reignText: '商代', tags: ['商王'] },
+    { id: 'ruler-shang-zuxin', name: '祖辛', reignText: '商代', tags: ['商王'] },
+    { id: 'ruler-shang-wojia', name: '沃甲', reignText: '商代', tags: ['商王'] },
+    { id: 'ruler-shang-zuding', name: '祖丁', reignText: '商代', tags: ['商王'] },
+    { id: 'ruler-shang-nangeng', name: '南庚', reignText: '商代', tags: ['商王'] },
+    { id: 'ruler-shang-yangjia', name: '阳甲', reignText: '商代', tags: ['商王'] },
+    { id: 'ruler-shang-xiaoxin', name: '小辛', reignText: '商代', tags: ['商王'] },
+    { id: 'ruler-shang-xiaoyi', name: '小乙', reignText: '商代', tags: ['商王'] },
+    { id: 'ruler-shang-zugeng', name: '祖庚', reignText: '商代后期', tags: ['商王'] },
+    { id: 'ruler-shang-zujia', name: '祖甲', reignText: '商代后期', tags: ['商王'] },
+    { id: 'ruler-shang-linxin', name: '廪辛', reignText: '商代后期', tags: ['商王'] },
+    { id: 'ruler-shang-kangding', name: '康丁', reignText: '商代后期', tags: ['商王'] },
+    { id: 'ruler-shang-wuyi', name: '武乙', reignText: '商代后期', tags: ['商王'] },
+    { id: 'ruler-shang-wending', name: '文丁', reignText: '商代后期', tags: ['商王'] },
+    { id: 'ruler-shang-diyi', name: '帝乙', reignText: '商末', tags: ['商王'] },
+  ]),
+  ...group('western-zhou', '西周', [
+    { id: 'ruler-zhou-zhao', name: '周昭王', personalName: '姬瑕', reignText: '西周前期', tags: ['西周'] },
+    { id: 'ruler-zhou-mu', name: '周穆王', personalName: '姬满', reignText: '西周前期', tags: ['西周'] },
+    { id: 'ruler-zhou-gong', name: '周共王', personalName: '姬繄扈', reignText: '西周中期', tags: ['西周'] },
+    { id: 'ruler-zhou-yi1', name: '周懿王', personalName: '姬囏', reignText: '西周中期', tags: ['西周'] },
+    { id: 'ruler-zhou-xiao', name: '周孝王', personalName: '姬辟方', reignText: '西周中期', tags: ['西周'] },
+    { id: 'ruler-zhou-yi2', name: '周夷王', personalName: '姬燮', reignText: '西周中后期', tags: ['西周'] },
+  ]),
+  ...group('eastern-zhou', '东周', [
+    { id: 'ruler-zhou-huan', name: '周桓王', personalName: '姬林', reignText: '前719-前697年', tags: ['东周王室'] },
+    { id: 'ruler-zhou-zhuang', name: '周庄王', personalName: '姬佗', reignText: '前696-前682年', tags: ['东周王室'] },
+    { id: 'ruler-zhou-xi', name: '周釐王', personalName: '姬胡齐', reignText: '前681-前677年', tags: ['东周王室'] },
+    { id: 'ruler-zhou-hui', name: '周惠王', personalName: '姬阆', reignText: '前676-前652年', tags: ['东周王室'] },
+    { id: 'ruler-zhou-xiang', name: '周襄王', personalName: '姬郑', reignText: '前651-前619年', tags: ['东周王室'] },
+    { id: 'ruler-zhou-qing', name: '周顷王', personalName: '姬壬臣', reignText: '前618-前613年', tags: ['东周王室'] },
+    { id: 'ruler-zhou-kuang', name: '周匡王', personalName: '姬班', reignText: '前612-前607年', tags: ['东周王室'] },
+    { id: 'ruler-zhou-ding', name: '周定王', personalName: '姬瑜', reignText: '前606-前586年', tags: ['东周王室'] },
+    { id: 'ruler-zhou-jian', name: '周简王', personalName: '姬夷', reignText: '前585-前572年', tags: ['东周王室'] },
+    { id: 'ruler-zhou-ling', name: '周灵王', personalName: '姬泄心', reignText: '前571-前545年', tags: ['东周王室'] },
+    { id: 'ruler-zhou-jing1', name: '周景王', personalName: '姬贵', reignText: '前544-前520年', tags: ['东周王室'] },
+    { id: 'ruler-zhou-dao', name: '周悼王', personalName: '姬猛', reignText: '前520年', tags: ['东周王室'] },
+    { id: 'ruler-zhou-jing2', name: '周敬王', personalName: '姬匄', reignText: '前519-前476年', tags: ['东周王室'] },
+    { id: 'ruler-zhou-yuan', name: '周元王', personalName: '姬仁', reignText: '前475-前469年', tags: ['东周王室'] },
+    { id: 'ruler-zhou-zhending', name: '周贞定王', personalName: '姬介', reignText: '前468-前441年', tags: ['东周王室'] },
+    { id: 'ruler-zhou-ai', name: '周哀王', personalName: '姬去疾', reignText: '前441年', tags: ['东周王室'] },
+    { id: 'ruler-zhou-si', name: '周思王', personalName: '姬叔', reignText: '前441年', tags: ['东周王室'] },
+    { id: 'ruler-zhou-kao', name: '周考王', personalName: '姬嵬', reignText: '前440-前426年', tags: ['东周王室'] },
+    { id: 'ruler-zhou-weilie', name: '周威烈王', personalName: '姬午', reignText: '前425-前402年', tags: ['三家分晋'] },
+    { id: 'ruler-zhou-an', name: '周安王', personalName: '姬骄', reignText: '前401-前376年', tags: ['战国'] },
+    { id: 'ruler-zhou-lie', name: '周烈王', personalName: '姬喜', reignText: '前375-前369年', tags: ['战国'] },
+    { id: 'ruler-zhou-xian', name: '周显王', personalName: '姬扁', reignText: '前368-前321年', tags: ['战国'] },
+    { id: 'ruler-zhou-shenjing', name: '周慎靓王', personalName: '姬定', reignText: '前320-前315年', tags: ['战国'] },
+  ]),
+  ...group('eastern-han', '东汉', [
+    { id: 'ruler-han-shaodi', name: '汉少帝', personalName: '刘辩', reignText: '189年', tags: ['东汉末年', '废帝'] },
+  ]),
+  ...group('eastern-jin-sixteen', '东晋', [
+    { id: 'ruler-ejin-kangdi', name: '晋康帝', personalName: '司马岳', reignText: '342-344年', tags: ['东晋'] },
+    { id: 'ruler-ejin-mudi', name: '晋穆帝', personalName: '司马聃', reignText: '344-361年', tags: ['东晋'] },
+    { id: 'ruler-ejin-aidi', name: '晋哀帝', personalName: '司马丕', reignText: '361-365年', tags: ['东晋'] },
+    { id: 'ruler-ejin-haixi', name: '海西公', personalName: '司马奕', reignText: '365-371年', tags: ['东晋', '废帝'] },
+    { id: 'ruler-ejin-andi', name: '晋安帝', personalName: '司马德宗', reignText: '397-418年', tags: ['东晋后期'] },
+    { id: 'ruler-ejin-gongdi', name: '晋恭帝', personalName: '司马德文', reignText: '419-420年', tags: ['东晋末代'] },
+  ]),
+  ...group('southern-northern', '南朝宋', [
+    { id: 'ruler-liu-song-shaodi', name: '宋少帝', personalName: '刘义符', reignText: '422-424年', tags: ['南朝宋'] },
+    { id: 'ruler-liu-song-xiaowu', name: '宋孝武帝', personalName: '刘骏', reignText: '453-464年', tags: ['南朝宋'] },
+    { id: 'ruler-liu-song-qianfei', name: '宋前废帝', personalName: '刘子业', reignText: '464-465年', tags: ['南朝宋', '废帝'] },
+    { id: 'ruler-liu-song-mingdi', name: '宋明帝', personalName: '刘彧', reignText: '465-472年', tags: ['南朝宋'] },
+    { id: 'ruler-liu-song-houfei', name: '宋后废帝', personalName: '刘昱', reignText: '472-477年', tags: ['南朝宋', '废帝'] },
+    { id: 'ruler-liu-song-shundi', name: '宋顺帝', personalName: '刘准', reignText: '477-479年', tags: ['南朝宋末代'] },
+  ]),
+  ...group('southern-northern', '南朝齐', [
+    { id: 'ruler-nanqi-wudi', name: '齐武帝', personalName: '萧赜', reignText: '482-493年', tags: ['南朝齐'] },
+    { id: 'ruler-nanqi-yulin', name: '郁林王', personalName: '萧昭业', reignText: '493-494年', tags: ['南朝齐', '废帝'] },
+    { id: 'ruler-nanqi-hailing', name: '海陵王', personalName: '萧昭文', reignText: '494年', tags: ['南朝齐', '废帝'] },
+    { id: 'ruler-nanqi-mingdi', name: '齐明帝', personalName: '萧鸾', reignText: '494-498年', tags: ['南朝齐'] },
+    { id: 'ruler-nanqi-donghun', name: '东昏侯', personalName: '萧宝卷', reignText: '498-501年', tags: ['南朝齐'] },
+    { id: 'ruler-nanqi-hedi', name: '齐和帝', personalName: '萧宝融', reignText: '501-502年', tags: ['南朝齐末代'] },
+  ]),
+  ...group('southern-northern', '南朝梁', [
+    { id: 'ruler-liang-jianwen', name: '梁简文帝', personalName: '萧纲', reignText: '549-551年', tags: ['南朝梁'] },
+    { id: 'ruler-liang-yuandi', name: '梁元帝', personalName: '萧绎', reignText: '552-554年', tags: ['南朝梁'] },
+    { id: 'ruler-liang-jingdi', name: '梁敬帝', personalName: '萧方智', reignText: '555-557年', tags: ['南朝梁末代'] },
+  ]),
+  ...group('southern-northern', '南朝陈', [
+    { id: 'ruler-chen-wendi', name: '陈文帝', personalName: '陈蒨', reignText: '559-566年', tags: ['南朝陈'] },
+    { id: 'ruler-chen-feidi', name: '陈废帝', personalName: '陈伯宗', reignText: '566-568年', tags: ['南朝陈', '废帝'] },
+    { id: 'ruler-chen-xuandi', name: '陈宣帝', personalName: '陈顼', reignText: '568-582年', tags: ['南朝陈'] },
+    { id: 'ruler-chen-houzhu', name: '陈后主', personalName: '陈叔宝', reignText: '582-589年', tags: ['南朝陈末代'] },
+  ]),
+  ...group('southern-northern', '北魏', [
+    { id: 'ruler-nwei-mingyuan', name: '北魏明元帝', personalName: '拓跋嗣', reignText: '409-423年', tags: ['北魏'] },
+    { id: 'ruler-nwei-wencheng', name: '北魏文成帝', personalName: '拓跋濬', reignText: '452-465年', tags: ['北魏'] },
+    { id: 'ruler-nwei-xianwen', name: '北魏献文帝', personalName: '拓跋弘', reignText: '465-471年', tags: ['北魏'] },
+    { id: 'ruler-nwei-xuanwu', name: '北魏宣武帝', personalName: '元恪', reignText: '499-515年', tags: ['北魏'] },
+    { id: 'ruler-nwei-xiaoming', name: '北魏孝明帝', personalName: '元诩', reignText: '515-528年', tags: ['北魏'] },
+    { id: 'ruler-nwei-xiaozhuang', name: '北魏孝庄帝', personalName: '元子攸', reignText: '528-530年', tags: ['北魏后期'] },
+  ]),
+  ...group('southern-northern', '东魏', [
+    { id: 'ruler-ewei-xiaojing', name: '东魏孝静帝', personalName: '元善见', reignText: '534-550年', tags: ['东魏'] },
+  ]),
+  ...group('southern-northern', '西魏', [
+    { id: 'ruler-wwei-wendi', name: '西魏文帝', personalName: '元宝炬', reignText: '535-551年', tags: ['西魏'] },
+    { id: 'ruler-wwei-feidi', name: '西魏废帝', personalName: '元钦', reignText: '551-554年', tags: ['西魏', '废帝'] },
+    { id: 'ruler-wwei-gongdi', name: '西魏恭帝', personalName: '拓跋廓', reignText: '554-557年', tags: ['西魏末代'] },
+  ]),
+  ...group('southern-northern', '北齐', [
+    { id: 'ruler-nqi-wenxuan', name: '北齐文宣帝', personalName: '高洋', reignText: '550-559年', tags: ['北齐开国'] },
+    { id: 'ruler-nqi-feidi', name: '北齐废帝', personalName: '高殷', reignText: '559-560年', tags: ['北齐', '废帝'] },
+    { id: 'ruler-nqi-xiaozhao', name: '北齐孝昭帝', personalName: '高演', reignText: '560-561年', tags: ['北齐'] },
+    { id: 'ruler-nqi-wucheng', name: '北齐武成帝', personalName: '高湛', reignText: '561-565年', tags: ['北齐'] },
+    { id: 'ruler-nqi-houzhu', name: '北齐后主', personalName: '高纬', reignText: '565-577年', tags: ['北齐后期'] },
+    { id: 'ruler-nqi-youzhu', name: '北齐幼主', personalName: '高恒', reignText: '577年', tags: ['北齐末代'] },
+  ]),
+  ...group('southern-northern', '北周', [
+    { id: 'ruler-nzhou-xiaomin', name: '北周孝闵帝', personalName: '宇文觉', reignText: '557年', tags: ['北周开国'] },
+    { id: 'ruler-nzhou-mingdi', name: '北周明帝', personalName: '宇文毓', reignText: '557-560年', tags: ['北周'] },
+    { id: 'ruler-nzhou-xuandi', name: '北周宣帝', personalName: '宇文赟', reignText: '578-579年', tags: ['北周'] },
+    { id: 'ruler-nzhou-jingdi', name: '北周静帝', personalName: '宇文阐', reignText: '579-581年', tags: ['北周末代'] },
+  ]),
+  ...group('tang', '唐', [
+    { id: 'ruler-tang-shangdi', name: '唐殇帝', personalName: '李重茂', reignText: '710年', tags: ['唐', '短暂在位'] },
+    { id: 'ruler-tang-muzong', name: '唐穆宗', personalName: '李恒', reignText: '820-824年', tags: ['中唐'] },
+    { id: 'ruler-tang-jingzong', name: '唐敬宗', personalName: '李湛', reignText: '824-826年', tags: ['中唐'] },
+    { id: 'ruler-tang-yizong', name: '唐懿宗', personalName: '李漼', reignText: '859-873年', tags: ['晚唐'] },
+    { id: 'ruler-tang-xizong', name: '唐僖宗', personalName: '李儇', reignText: '873-888年', tags: ['黄巢起义'] },
+  ]),
+  ...group('five-dynasties-ten-kingdoms', '五代', [
+    { id: 'ruler-later-liang-yingwang', name: '后梁郢王', personalName: '朱友珪', reignText: '912-913年', polity: '后梁', tags: ['后梁', '五代十国'] },
+    { id: 'ruler-later-tang-mindi', name: '后唐闵帝', personalName: '李从厚', reignText: '933-934年', polity: '后唐', tags: ['后唐', '五代十国'] },
+    { id: 'ruler-later-tang-modi', name: '后唐末帝', personalName: '李从珂', reignText: '934-936年', polity: '后唐', tags: ['后唐', '五代十国'] },
+    { id: 'ruler-later-jin-chudi', name: '后晋出帝', personalName: '石重贵', reignText: '942-947年', polity: '后晋', tags: ['后晋', '五代十国'] },
+    { id: 'ruler-later-han-yindi', name: '后汉隐帝', personalName: '刘承祐', reignText: '948-950年', polity: '后汉', tags: ['后汉', '五代十国'] },
+    { id: 'ruler-later-zhou-gongdi', name: '后周恭帝', personalName: '柴宗训', reignText: '959-960年', polity: '后周', tags: ['后周末代', '五代十国'] },
+  ]),
+  ...group('song-liao-jin-xixia', '宋', [
+    { id: 'ruler-song-guangzong', name: '宋光宗', personalName: '赵惇', reignText: '1189-1194年', tags: ['南宋'] },
+  ]),
+  ...group('song-liao-jin-xixia', '辽', [
+    { id: 'ruler-liao-shizong', name: '辽世宗', personalName: '耶律阮', reignText: '947-951年', tags: ['辽'] },
+    { id: 'ruler-liao-muzong', name: '辽穆宗', personalName: '耶律璟', reignText: '951-969年', tags: ['辽'] },
+    { id: 'ruler-liao-jingzong', name: '辽景宗', personalName: '耶律贤', reignText: '969-982年', tags: ['辽'] },
+    { id: 'ruler-liao-xingzong', name: '辽兴宗', personalName: '耶律宗真', reignText: '1031-1055年', tags: ['辽'] },
+  ]),
+  ...group('song-liao-jin-xixia', '西夏', [
+    { id: 'ruler-xixia-yizong', name: '西夏毅宗', personalName: '李谅祚', reignText: '1048-1067年', tags: ['西夏'] },
+    { id: 'ruler-xixia-huizong', name: '西夏惠宗', personalName: '李秉常', reignText: '1067-1086年', tags: ['西夏'] },
+    { id: 'ruler-xixia-chongzong', name: '西夏崇宗', personalName: '李乾顺', reignText: '1086-1139年', tags: ['西夏'] },
+    { id: 'ruler-xixia-huanzong', name: '西夏桓宗', personalName: '李纯祐', reignText: '1193-1206年', tags: ['西夏'] },
+    { id: 'ruler-xixia-xiangzong', name: '西夏襄宗', personalName: '李安全', reignText: '1206-1211年', tags: ['西夏'] },
+    { id: 'ruler-xixia-shenzong', name: '西夏神宗', personalName: '李遵顼', reignText: '1211-1223年', tags: ['西夏'] },
+    { id: 'ruler-xixia-xianzong', name: '西夏献宗', personalName: '李德旺', reignText: '1223-1226年', tags: ['西夏'] },
+  ]),
+  ...group('song-liao-jin-xixia', '金', [
+    { id: 'ruler-jin-xizong', name: '金熙宗', personalName: '完颜亶', reignText: '1135-1150年', tags: ['金'] },
+    { id: 'ruler-jin-hailing', name: '海陵王', personalName: '完颜亮', reignText: '1150-1161年', tags: ['金', '废帝'] },
+    { id: 'ruler-jin-zhangzong', name: '金章宗', personalName: '完颜璟', reignText: '1189-1208年', tags: ['金'] },
+    { id: 'ruler-jin-weishao', name: '卫绍王', personalName: '完颜永济', reignText: '1208-1213年', tags: ['金', '废帝'] },
+    { id: 'ruler-jin-xuanzong', name: '金宣宗', personalName: '完颜珣', reignText: '1213-1224年', tags: ['金后期'] },
+    { id: 'ruler-jin-modi', name: '金末帝', personalName: '完颜承麟', reignText: '1234年', tags: ['金末代'] },
+  ]),
+  ...group('yuan', '元', [
+    { id: 'ruler-yuan-taiding', name: '元泰定帝', personalName: '孛儿只斤·也孙铁木儿', reignText: '1323-1328年', aliases: ['也孙铁木儿'], tags: ['元'] },
+    { id: 'ruler-yuan-tianshun', name: '元天顺帝', personalName: '孛儿只斤·阿速吉八', reignText: '1328年', aliases: ['阿速吉八'], tags: ['元', '短暂在位'] },
+    { id: 'ruler-yuan-mingzong', name: '元明宗', personalName: '孛儿只斤·和世㻋', reignText: '1329年', aliases: ['和世㻋'], tags: ['元'] },
+    { id: 'ruler-yuan-ningzong', name: '元宁宗', personalName: '孛儿只斤·懿璘质班', reignText: '1332年', aliases: ['懿璘质班'], tags: ['元', '幼帝'] },
+  ]),
+];
+
+const nonCanonicalRulerIds = new Set([
+  'ruler-qi-huan',
+  'ruler-jin-wen',
+  'ruler-chu-zhuang',
+  'ruler-goujian',
+  'ruler-wei-wen',
+  'ruler-qin-xiao',
+  'ruler-qin-zhaoxiang',
+  'ruler-han-ruzi',
+  'ruler-fuqin-fujian',
+  'ruler-southern-tang-liyu',
+]);
+
+const earlyRulerSequences = {
+  xia: ['ruler-xia-yu', 'ruler-xia-qi', 'ruler-xia-taikang', 'ruler-xia-zhongkang', 'ruler-xia-xiang', 'ruler-xia-shaokang', 'ruler-xia-zhu', 'ruler-xia-huai', 'ruler-xia-mang', 'ruler-xia-xie', 'ruler-xia-bujiang', 'ruler-xia-jiong', 'ruler-xia-jin', 'ruler-xia-kongjia', 'ruler-xia-gao', 'ruler-xia-fa', 'ruler-xia-jie'],
+  shang: ['ruler-shang-tang', 'ruler-shang-waibing', 'ruler-shang-zhongren', 'ruler-shang-taijia', 'ruler-shang-woding', 'ruler-shang-taigeng', 'ruler-shang-xiaojia', 'ruler-shang-yongji', 'ruler-shang-taiwu', 'ruler-shang-zhongding', 'ruler-shang-wairen', 'ruler-shang-hedanjia', 'ruler-shang-zuyi', 'ruler-shang-zuxin', 'ruler-shang-wojia', 'ruler-shang-zuding', 'ruler-shang-nangeng', 'ruler-shang-yangjia', 'ruler-shang-pan-geng', 'ruler-shang-xiaoxin', 'ruler-shang-xiaoyi', 'ruler-shang-wu-ding', 'ruler-shang-zugeng', 'ruler-shang-zujia', 'ruler-shang-linxin', 'ruler-shang-kangding', 'ruler-shang-wuyi', 'ruler-shang-wending', 'ruler-shang-diyi', 'ruler-shang-di-xin'],
+  'western-zhou': ['ruler-zhou-wen', 'ruler-zhou-wu', 'ruler-zhou-cheng', 'ruler-zhou-kang', 'ruler-zhou-zhao', 'ruler-zhou-mu', 'ruler-zhou-gong', 'ruler-zhou-yi1', 'ruler-zhou-xiao', 'ruler-zhou-yi2', 'ruler-zhou-li', 'ruler-zhou-xuan', 'ruler-zhou-you'],
+  'eastern-zhou': ['ruler-zhou-ping', 'ruler-zhou-huan', 'ruler-zhou-zhuang', 'ruler-zhou-xi', 'ruler-zhou-hui', 'ruler-zhou-xiang', 'ruler-zhou-qing', 'ruler-zhou-kuang', 'ruler-zhou-ding', 'ruler-zhou-jian', 'ruler-zhou-ling', 'ruler-zhou-jing1', 'ruler-zhou-dao', 'ruler-zhou-jing2', 'ruler-zhou-yuan', 'ruler-zhou-zhending', 'ruler-zhou-ai', 'ruler-zhou-si', 'ruler-zhou-kao', 'ruler-zhou-weilie', 'ruler-zhou-an', 'ruler-zhou-lie', 'ruler-zhou-xian', 'ruler-zhou-shenjing', 'ruler-zhou-nan'],
+};
+
+const sequenceOrder = Object.keys(earlyRulerSequences).reduce((map, dynastyId) => {
+  earlyRulerSequences[dynastyId].forEach((id, index) => {
+    map[id] = index + 1;
+  });
+  return map;
+}, {});
+
+const completeRulers = rulers.concat(rulerSupplements).map(item => ({
+  ...item,
+  canonicalOrder: sequenceOrder[item.id] || item.order,
+  isCanonicalRuler: !nonCanonicalRulerIds.has(item.id),
+  recordBasis: nonCanonicalRulerIds.has(item.id) ? '诸侯世家与区域政权史料' : item.recordBasis,
+}));
+
+module.exports = {
+  rulers: completeRulers,
+};
