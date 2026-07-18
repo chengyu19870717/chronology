@@ -1,4 +1,6 @@
 const knowledge = require('../../data/historyKnowledge');
+const { eventShare } = require('../../utils/share');
+const { handleMissingEntry, clearMissingEntryTimer } = require('../../utils/missingEntry');
 
 function toPersonCard(person) {
   return {
@@ -31,7 +33,10 @@ Page({
 
   onLoad(options) {
     const source = knowledge.eventMap[options.id];
-    if (!source) return;
+    if (!source) {
+      handleMissingEntry(this);
+      return;
+    }
 
     const decorated = knowledge.decorateEvent(source);
     const { relatedPersons: rawRelatedPersons, ...event } = decorated;
@@ -41,6 +46,18 @@ Page({
       relatedPersons: rawRelatedPersons.map(knowledge.decoratePerson).map(toPersonCard),
       activeDispute: event.disputeTabs[0] || null,
     });
+  },
+
+  onUnload() {
+    clearMissingEntryTimer(this);
+  },
+
+  onShareAppMessage() {
+    return eventShare(this.data.event);
+  },
+
+  onShareTimeline() {
+    return eventShare(this.data.event);
   },
 
   switchDispute(e) {

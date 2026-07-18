@@ -157,7 +157,12 @@ function main() {
   }
 
   if (options.curriculum) {
-    runFaceCropBatch(curriculumJobs, compactMaxSize, Math.round(compactMaxSize * 1.25), compactQuality);
+    runFaceCropBatch(
+      curriculumJobs,
+      Math.round(compactMaxSize * 0.8),
+      compactMaxSize,
+      compactQuality,
+    );
   }
 
   const totalBytes = selected.reduce((sum, person) => {

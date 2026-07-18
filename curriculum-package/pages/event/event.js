@@ -1,4 +1,6 @@
 const content = require('../../data/content');
+const { curriculumEventShare } = require('../../../utils/share');
+const { handleMissingEntry, clearMissingEntryTimer } = require('../../../utils/missingEntry');
 
 Page({
   data: {
@@ -17,13 +19,28 @@ Page({
 
   onLoad(options) {
     const event = content.buildEvent(options.id);
-    if (!event) return;
+    if (!event) {
+      handleMissingEntry(this);
+      return;
+    }
     wx.setNavigationBarTitle({ title: event.name });
     this.setData({
       event,
       relatedPersons: event.relatedPersons,
       activeDispute: event.disputeTabs[0] || null,
     });
+  },
+
+  onUnload() {
+    clearMissingEntryTimer(this);
+  },
+
+  onShareAppMessage() {
+    return curriculumEventShare(this.data.event);
+  },
+
+  onShareTimeline() {
+    return curriculumEventShare(this.data.event);
   },
 
   switchTab(e) {

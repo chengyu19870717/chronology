@@ -1,5 +1,7 @@
 const content = require('../../data/content');
 const { getPersonTagInfo } = require('../../../data/personTagGlossary');
+const { personShare } = require('../../../utils/share');
+const { handleMissingEntry, clearMissingEntryTimer } = require('../../../utils/missingEntry');
 
 Page({
   data: {
@@ -25,7 +27,10 @@ Page({
 
   onLoad(options) {
     const person = content.buildPerson(options.id);
-    if (!person) return;
+    if (!person) {
+      handleMissingEntry(this);
+      return;
+    }
     wx.setNavigationBarTitle({ title: person.name });
     this.setData({
       person,
@@ -35,6 +40,18 @@ Page({
       activeDispute: person.disputeTabs[0] || null,
       avatarLoadFailed: false,
     });
+  },
+
+  onUnload() {
+    clearMissingEntryTimer(this);
+  },
+
+  onShareAppMessage() {
+    return personShare(this.data.person, '/curriculum-package/pages/person/person');
+  },
+
+  onShareTimeline() {
+    return personShare(this.data.person, '/curriculum-package/pages/person/person');
   },
 
   switchTab(e) {

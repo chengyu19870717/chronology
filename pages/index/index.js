@@ -3,6 +3,7 @@ const curriculum = require('../../data/curriculumIndex');
 const { getDynastyTagInfo } = require('../../data/dynastyTagGlossary');
 const { formatHistoricalName } = require('../../data/namePronunciations');
 const { buildPersonRows } = require('../../data/personGridLayout');
+const { homeShare } = require('../../utils/share');
 
 function normalizeIdentity(value) {
   return String(value || '').replace(/（.*?）/g, '').replace(/[·\s]/g, '');
@@ -184,6 +185,14 @@ Page({
 
   onLoad() {
     this.refresh();
+  },
+
+  onShareAppMessage() {
+    return homeShare();
+  },
+
+  onShareTimeline() {
+    return homeShare();
   },
 
   refresh() {

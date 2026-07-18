@@ -1,5 +1,6 @@
 .DS_Store
 project.private.config.json
+node_modules/
 
 # ComfyUI source renders are reproducible and are not required at runtime.
 assets/avatar-sources/

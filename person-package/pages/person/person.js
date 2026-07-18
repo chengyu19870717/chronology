@@ -2,6 +2,8 @@ const knowledge = require('../../../data/historyKnowledge');
 const curriculum = require('../../../data/curriculumIndex');
 const { getPersonTagInfo } = require('../../../data/personTagGlossary');
 const { formatHistoricalName } = require('../../../data/namePronunciations');
+const { personShare } = require('../../../utils/share');
+const { handleMissingEntry, clearMissingEntryTimer } = require('../../../utils/missingEntry');
 
 function decorateResume(list) {
   return (list || []).map(item => ({
@@ -100,7 +102,10 @@ Page({
 
   onLoad(options) {
     const source = knowledge.personMap[options.id];
-    if (!source) return;
+    if (!source) {
+      handleMissingEntry(this);
+      return;
+    }
 
     const decorated = knowledge.decoratePerson(source);
     const {
@@ -124,6 +129,18 @@ Page({
       activeDispute: person.disputeTabs[0] || null,
       avatarLoadFailed: false,
     });
+  },
+
+  onUnload() {
+    clearMissingEntryTimer(this);
+  },
+
+  onShareAppMessage() {
+    return personShare(this.data.person, '/person-package/pages/person/person');
+  },
+
+  onShareTimeline() {
+    return personShare(this.data.person, '/person-package/pages/person/person');
   },
 
   switchTab(e) {
