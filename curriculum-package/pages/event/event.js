@@ -1,6 +1,8 @@
 const content = require('../../data/content');
 const { curriculumEventShare } = require('../../../utils/share');
 const { handleMissingEntry, clearMissingEntryTimer } = require('../../../utils/missingEntry');
+const { navigate, goHome } = require('../../../utils/nav');
+const favoritesStore = require('../../../utils/favorites');
 
 Page({
   data: {
@@ -10,6 +12,7 @@ Page({
     activeDisputeIndex: 0,
     activeDispute: null,
     showBackTop: false,
+    isFavorite: false,
     tabs: [
       { id: 'context', name: '脉络' },
       { id: 'people', name: '人物' },
@@ -28,7 +31,9 @@ Page({
       event,
       relatedPersons: event.relatedPersons,
       activeDispute: event.disputeTabs[0] || null,
+      isFavorite: favoritesStore.isFavorite('event', event.id),
     });
+    favoritesStore.recordRecent({ type: 'event', id: event.id, name: event.name });
   },
 
   onUnload() {
@@ -53,7 +58,21 @@ Page({
   },
 
   goPerson(e) {
-    wx.navigateTo({ url: content.personRoute(e.currentTarget.dataset.id) });
+    navigate(content.personRoute(e.currentTarget.dataset.id));
+  },
+
+  goHome,
+
+  toggleFavorite() {
+    const event = this.data.event;
+    if (!event) return;
+    this.setData({
+      isFavorite: favoritesStore.toggleFavorite({
+        type: 'event',
+        id: event.id,
+        name: event.name,
+      }),
+    });
   },
 
   onPageScroll(e) {

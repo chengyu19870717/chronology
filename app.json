@@ -21,6 +21,14 @@
     }
   ],
   "entryPagePath": "pages/index/index",
+  "preloadRule": {
+    "pages/index/index": {
+      "network": "wifi",
+      "packages": [
+        "personDetail"
+      ]
+    }
+  },
   "window": {
     "navigationBarBackgroundColor": "#FFFFFF",
     "navigationBarTitleText": "中国编年史速查表",

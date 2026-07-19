@@ -4,6 +4,8 @@ const { getPersonTagInfo } = require('../../../data/personTagGlossary');
 const { formatHistoricalName } = require('../../../data/namePronunciations');
 const { personShare } = require('../../../utils/share');
 const { handleMissingEntry, clearMissingEntryTimer } = require('../../../utils/missingEntry');
+const { navigate, personRoute, eventRoute, goHome } = require('../../../utils/nav');
+const favoritesStore = require('../../../utils/favorites');
 
 function decorateResume(list) {
   return (list || []).map(item => ({
@@ -91,6 +93,7 @@ Page({
     showBackTop: false,
     tagDialogVisible: false,
     activeTagInfo: null,
+    isFavorite: false,
     tabs: [
       { id: 'profile', name: '档案' },
       { id: 'resume', name: '履历' },
@@ -122,7 +125,9 @@ Page({
       graphRelationships: relationships.slice(0, 6),
       activeDispute: person.disputeTabs[0] || null,
       avatarLoadFailed: false,
+      isFavorite: favoritesStore.isFavorite('person', person.id),
     });
+    favoritesStore.recordRecent({ type: 'person', id: person.id, name: person.name });
   },
 
   onUnload() {
@@ -183,16 +188,24 @@ Page({
   preventTouchMove() {},
 
   goEvent(e) {
-    wx.navigateTo({
-      url: `/pages/event/event?id=${e.currentTarget.dataset.id}`,
-    });
+    navigate(eventRoute(e.currentTarget.dataset.id));
   },
 
   goPerson(e) {
-    wx.navigateTo({
-      url: e.currentTarget.dataset.id.indexOf('curr-') === 0
-        ? `/curriculum-package/pages/person/person?id=${e.currentTarget.dataset.id}`
-        : `/person-package/pages/person/person?id=${e.currentTarget.dataset.id}`,
+    navigate(personRoute(e.currentTarget.dataset.id));
+  },
+
+  goHome,
+
+  toggleFavorite() {
+    const person = this.data.person;
+    if (!person) return;
+    this.setData({
+      isFavorite: favoritesStore.toggleFavorite({
+        type: 'person',
+        id: person.id,
+        name: person.name,
+      }),
     });
   },
 

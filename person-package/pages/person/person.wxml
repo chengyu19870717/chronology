@@ -16,7 +16,14 @@
       </view>
       <view class="hero-copy">
         <view class="life-pill">{{person.lifeText}}</view>
-        <view class="person-name">{{person.name}}</view>
+        <view class="title-action-row">
+          <view class="person-name">{{person.name}}</view>
+          <button
+            class="favorite-button {{isFavorite ? 'is-active' : ''}}"
+            aria-label="{{isFavorite ? '取消收藏' : '收藏人物'}}"
+            catchtap="toggleFavorite"
+          >{{isFavorite ? '★' : '☆'}}</button>
+        </view>
         <view wx:if="{{person.formalName && person.formalName !== person.name}}" class="formal-name">本名 / 常用名：{{person.formalName}}</view>
       </view>
     </view>
@@ -229,6 +236,7 @@
   </view>
 
   <view class="safe-bottom"></view>
+  <button class="home-float-button" aria-label="回首页" catchtap="goHome">首页</button>
   <button wx:if="{{showBackTop}}" class="back-top-button" aria-label="返回顶部" catchtap="scrollToTop">↑</button>
 </view>
 

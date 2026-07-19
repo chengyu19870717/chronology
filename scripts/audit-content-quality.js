@@ -328,6 +328,12 @@ for (const [keyword, type] of searchCases) {
   assert(result.length > 0, `姓名搜索无结果：${keyword}`);
 }
 
+assert(searchPersons('libai').some(person => person.name === '李白'), '拼音搜索 libai 未命中李白');
+assert(searchPersons('ls').slice(0, 5).some(person => person.name === '李斯'), '拼音首字母 ls 未在前 5 条命中李斯');
+assert(curriculum.searchPeople('lyj').some(person => person.name === '郦食其'), '拼音首字母 lyj 未命中郦食其');
+const pinyinIndexBytes = fs.statSync(path.join(projectRoot, 'data', 'pinyinIndex.js')).size;
+assert(pinyinIndexBytes <= 80 * 1024, `拼音索引 ${pinyinIndexBytes} bytes 超过 80KB`);
+
 const dynastyView = getDynastyView('', knowledge.dynasties.map(item => item.id));
 assert(dynastyView.length === knowledge.dynasties.length, '朝代视图未完整返回全部朝代');
 assert(dynastyView.every(item => Array.isArray(item.emperors) && Array.isArray(item.otherRulers)), '朝代视图未拆分帝王与其他人物');
@@ -346,6 +352,7 @@ const ignoredRuntimeNames = new Set([
   'avatar-sources',
   'scripts',
   'workflows',
+  'node_modules',
   'person-package',
   'curriculum-package',
   'README.md',
@@ -376,9 +383,9 @@ const compactAvatarFiles = fs.existsSync(compactAvatarDir)
   : [];
 const avatarBytes = totalBytes([...avatarFiles, ...compactAvatarFiles]);
 
-assert(mainRuntimeBytes < 2 * 1024 * 1024, `估算主包 ${formatMiB(mainRuntimeBytes)} 超过 2 MiB 目标`);
-assert(personPackageBytes < 2 * 1024 * 1024, `估算人物分包 ${formatMiB(personPackageBytes)} 超过 2 MiB 目标`);
-assert(curriculumPackageBytes < 2 * 1024 * 1024, `估算教材通史分包 ${formatMiB(curriculumPackageBytes)} 超过 2 MiB 目标`);
+assert(mainRuntimeBytes <= 1.85 * 1024 * 1024, `估算主包 ${formatMiB(mainRuntimeBytes)} 超过 1.85 MiB 预算`);
+assert(personPackageBytes <= 1.90 * 1024 * 1024, `估算人物分包 ${formatMiB(personPackageBytes)} 超过 1.90 MiB 预算`);
+assert(curriculumPackageBytes <= 1.90 * 1024 * 1024, `估算教材通史分包 ${formatMiB(curriculumPackageBytes)} 超过 1.90 MiB 预算`);
 assert(curriculumAvatarFiles.length === curriculumPeople.length, `教材通史头像 ${curriculumAvatarFiles.length}/${curriculumPeople.length}，尚未补齐`);
 assert(loadMs < 250, `数据模块加载耗时 ${loadMs.toFixed(1)} ms 超过 250 ms 目标`);
 

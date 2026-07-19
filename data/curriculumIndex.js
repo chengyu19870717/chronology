@@ -1,3 +1,5 @@
+const { personPinyinScore } = require('./pinyinSearch');
+
 const GROUP_META = {
   xia: { dynastyName: '夏', period: '夏与早期国家', dateText: '约前2070-约前1600年', theme: '洪水治理、部族联盟与早期王权形成' },
   shang: { dynastyName: '商', period: '商代国家与方国网络', dateText: '约前1600-前1046年', theme: '王权、祭祀、方国战争与青铜文明' },
@@ -778,16 +780,19 @@ function normalize(value) {
 function searchPeople(keyword) {
   const query = normalize(keyword);
   if (!query) return people.slice();
-  return people.filter(item => normalize([
-    item.name,
-    item.categoryText,
-    item.dynastyName,
-    item.periodLabel,
-    item.crossText,
-    item.activePeriodText,
-    item.focus,
-    item.summary,
-  ].join(' ')).includes(query));
+  return people.filter(item => (
+    normalize([
+      item.name,
+      item.categoryText,
+      item.dynastyName,
+      item.periodLabel,
+      item.crossText,
+      item.activePeriodText,
+      item.focus,
+      item.summary,
+    ].join(' ')).includes(query)
+    || personPinyinScore(item.id, query) < 9
+  )).sort((a, b) => personPinyinScore(a.id, query) - personPinyinScore(b.id, query));
 }
 
 function searchEvents(keyword) {

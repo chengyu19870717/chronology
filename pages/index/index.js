@@ -3,7 +3,10 @@ const curriculum = require('../../data/curriculumIndex');
 const { getDynastyTagInfo } = require('../../data/dynastyTagGlossary');
 const { formatHistoricalName } = require('../../data/namePronunciations');
 const { buildPersonRows } = require('../../data/personGridLayout');
+const { personPinyinScore } = require('../../data/pinyinSearch');
 const { homeShare } = require('../../utils/share');
+const { navigate, personRoute, eventRoute } = require('../../utils/nav');
+const favoritesStore = require('../../utils/favorites');
 
 function normalizeIdentity(value) {
   return String(value || '').replace(/（.*?）/g, '').replace(/[·\s]/g, '');
@@ -20,6 +23,22 @@ const curriculumRelationships = curriculum.relationships.filter(edge => (
   curriculumPersonIds.has(edge.sourceId) && curriculumPersonIds.has(edge.targetId)
 ));
 const dynastyOrder = Object.fromEntries(knowledge.dynasties.map(item => [item.id, item.order]));
+
+function belongsToDynasty(item, dynastyId) {
+  if (!dynastyId) return true;
+  const dynastyIds = item.dynastyIds || (item.dynastyId ? [item.dynastyId] : []);
+  return dynastyIds.indexOf(dynastyId) !== -1;
+}
+
+function countByDynasty(items) {
+  return Object.fromEntries(knowledge.dynasties.map(dynasty => [
+    dynasty.id,
+    items.filter(item => belongsToDynasty(item, dynasty.id)).length,
+  ]));
+}
+
+const dynastyPersonTotals = countByDynasty(knowledge.searchPersons('').concat(curriculumPeople));
+const dynastyEventTotals = countByDynasty(knowledge.events.concat(curriculumEvents));
 
 function compareStroke(a, b) {
   try {
@@ -40,7 +59,9 @@ function searchScore(item, keyword) {
 }
 
 function comparePerson(a, b, keyword) {
-  const score = searchScore(a, keyword) - searchScore(b, keyword);
+  const aScore = Math.min(searchScore(a, keyword), personPinyinScore(a.id, keyword));
+  const bScore = Math.min(searchScore(b, keyword), personPinyinScore(b.id, keyword));
+  const score = aScore - bScore;
   if (score) return score;
   const order = (dynastyOrder[a.dynastyId] || 999) - (dynastyOrder[b.dynastyId] || 999);
   if (order) return order;
@@ -161,6 +182,7 @@ Page({
     },
     keyword: '',
     activeMode: 'dynasty',
+    dynastyFilter: null,
     modes: [
       { id: 'dynasty', name: '朝代' },
       { id: 'ruler', name: '帝王' },
@@ -181,10 +203,19 @@ Page({
     showBackTop: false,
     tagDialogVisible: false,
     activeTagInfo: null,
+    favorites: [],
+    recentItems: [],
+    libraryVisible: false,
+    activeLibraryTab: 'favorites',
+    libraryItems: [],
   },
 
   onLoad() {
     this.refresh();
+  },
+
+  onShow() {
+    this.syncLibrary();
   },
 
   onShareAppMessage() {
@@ -196,16 +227,24 @@ Page({
   },
 
   refresh() {
-    const { keyword, expandedDynastyIds, activeMode, resultLimit } = this.data;
+    const {
+      keyword,
+      expandedDynastyIds,
+      activeMode,
+      resultLimit,
+      dynastyFilter,
+    } = this.data;
     const matchedRulers = activeMode === 'ruler' ? knowledge.searchRulers(keyword) : [];
     const matchedPersons = activeMode === 'person'
       ? knowledge.searchPersons(keyword)
         .concat(curriculum.searchPeople(keyword).filter(person => curriculumPersonIds.has(person.id)))
+        .filter(person => belongsToDynasty(person, dynastyFilter && dynastyFilter.id))
         .sort((a, b) => comparePerson(a, b, keyword))
       : [];
     const matchedEvents = activeMode === 'event'
       ? knowledge.searchEvents(keyword)
         .concat(curriculum.searchEvents(keyword).filter(event => curriculumEventIds.has(event.id)))
+        .filter(event => belongsToDynasty(event, dynastyFilter && dynastyFilter.id))
         .sort((a, b) => compareEvent(a, b, keyword))
       : [];
     const activeTotal = activeMode === 'ruler'
@@ -228,8 +267,8 @@ Page({
             ...expansion,
             people: people.slice(0, 8),
             events: events.slice(0, 5),
-            personTotal: people.length,
-            eventTotal: events.length,
+            personTotal: dynastyPersonTotals[dynasty.id] || 0,
+            eventTotal: dynastyEventTotals[dynasty.id] || 0,
             emperorPeople: [],
           }),
         };
@@ -292,6 +331,42 @@ Page({
 
   preventTouchMove() {},
 
+  syncLibrary() {
+    const favorites = favoritesStore.getFavorites();
+    const recentItems = favoritesStore.getRecent();
+    const libraryItems = this.data.activeLibraryTab === 'favorites' ? favorites : recentItems;
+    this.setData({ favorites, recentItems, libraryItems });
+  },
+
+  openLibrary(e) {
+    const activeLibraryTab = e.currentTarget.dataset.tab;
+    this.setData({
+      activeLibraryTab,
+      libraryItems: activeLibraryTab === 'favorites' ? this.data.favorites : this.data.recentItems,
+      libraryVisible: true,
+    });
+  },
+
+  switchLibraryTab(e) {
+    const activeLibraryTab = e.currentTarget.dataset.tab;
+    this.setData({
+      activeLibraryTab,
+      libraryItems: activeLibraryTab === 'favorites' ? this.data.favorites : this.data.recentItems,
+    });
+  },
+
+  closeLibrary() {
+    this.setData({ libraryVisible: false });
+  },
+
+  stopLibraryTap() {},
+
+  openLibraryItem(e) {
+    const { type, id } = e.currentTarget.dataset;
+    this.closeLibrary();
+    navigate(type === 'event' ? eventRoute(id) : personRoute(id));
+  },
+
   clearSearch() {
     this.setData({
       keyword: '',
@@ -303,6 +378,7 @@ Page({
     const id = e.currentTarget.dataset.id;
     this.setData({
       activeMode: id,
+      dynastyFilter: id === 'person' || id === 'event' ? this.data.dynastyFilter : null,
       resultLimit: this.data.pageSize,
     }, () => {
       this.refresh();
@@ -334,19 +410,13 @@ Page({
 
   goPerson(e) {
     const id = e.currentTarget.dataset.id;
-    wx.navigateTo({
-      url: id.indexOf('curr-') === 0
-        ? `/curriculum-package/pages/person/person?id=${id}`
-        : `/person-package/pages/person/person?id=${id}`,
-    });
+    navigate(personRoute(id));
   },
 
   goRuler(e) {
     const id = e.currentTarget.dataset.personId;
     if (id) {
-      wx.navigateTo({
-        url: `/person-package/pages/person/person?id=${id}`,
-      });
+      navigate(personRoute(id));
       return;
     }
     wx.showToast({
@@ -363,21 +433,28 @@ Page({
 
   goEvent(e) {
     const id = e.currentTarget.dataset.id;
-    wx.navigateTo({
-      url: id.indexOf('curr-event-') === 0
-        ? `/curriculum-package/pages/event/event?id=${id}`
-        : `/pages/event/event?id=${id}`,
-    });
+    navigate(eventRoute(id));
   },
 
   openDynastyExpansion(e) {
     this.setData({
       activeMode: e.currentTarget.dataset.mode,
-      keyword: e.currentTarget.dataset.dynasty,
+      keyword: '',
+      dynastyFilter: {
+        id: e.currentTarget.dataset.dynastyId,
+        name: e.currentTarget.dataset.dynastyName,
+      },
       resultLimit: this.data.pageSize,
     }, () => {
       this.refresh();
       wx.pageScrollTo({ scrollTop: 0, duration: 220 });
     });
+  },
+
+  clearDynastyFilter() {
+    this.setData({
+      dynastyFilter: null,
+      resultLimit: this.data.pageSize,
+    }, () => this.refresh());
   },
 });

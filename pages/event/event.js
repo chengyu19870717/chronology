@@ -1,6 +1,8 @@
 const knowledge = require('../../data/historyKnowledge');
 const { eventShare } = require('../../utils/share');
 const { handleMissingEntry, clearMissingEntryTimer } = require('../../utils/missingEntry');
+const { navigate, personRoute, goHome } = require('../../utils/nav');
+const favoritesStore = require('../../utils/favorites');
 
 function toPersonCard(person) {
   return {
@@ -24,6 +26,7 @@ Page({
     activeDisputeIndex: 0,
     activeDispute: null,
     showBackTop: false,
+    isFavorite: false,
     tabs: [
       { id: 'context', name: '脉络' },
       { id: 'people', name: '人物' },
@@ -45,7 +48,9 @@ Page({
       event,
       relatedPersons: rawRelatedPersons.map(knowledge.decoratePerson).map(toPersonCard),
       activeDispute: event.disputeTabs[0] || null,
+      isFavorite: favoritesStore.isFavorite('event', event.id),
     });
+    favoritesStore.recordRecent({ type: 'event', id: event.id, name: event.name });
   },
 
   onUnload() {
@@ -95,8 +100,20 @@ Page({
   },
 
   goPerson(e) {
-    wx.navigateTo({
-      url: `/person-package/pages/person/person?id=${e.currentTarget.dataset.id}`,
+    navigate(personRoute(e.currentTarget.dataset.id));
+  },
+
+  goHome,
+
+  toggleFavorite() {
+    const event = this.data.event;
+    if (!event) return;
+    this.setData({
+      isFavorite: favoritesStore.toggleFavorite({
+        type: 'event',
+        id: event.id,
+        name: event.name,
+      }),
     });
   },
 

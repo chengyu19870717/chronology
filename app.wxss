@@ -58,7 +58,8 @@ button::after {
   height: calc(44rpx + env(safe-area-inset-bottom));
 }
 
-.back-top-button {
+.back-top-button,
+.home-float-button {
   position: fixed;
   z-index: 60;
   right: 24rpx;
@@ -75,6 +76,47 @@ button::after {
   font-size: 34rpx;
   font-weight: 900;
   box-shadow: 0 8rpx 24rpx rgba(23, 42, 47, 0.16);
+}
+
+.title-action-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 12rpx;
+}
+
+.title-action-row .person-name,
+.title-action-row .event-title,
+.title-action-row .hero-title {
+  flex: 1;
+  min-width: 0;
+  margin-top: 0;
+}
+
+.favorite-button {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 58rpx;
+  height: 58rpx;
+  border: 2rpx solid #DFC6AC;
+  border-radius: 50%;
+  background: #FFFFFF;
+  color: var(--bronze);
+  font-size: 34rpx;
+  line-height: 1;
+}
+
+.favorite-button.is-active {
+  border-color: #D7B4AF;
+  background: var(--cinnabar-soft);
+  color: var(--cinnabar);
+}
+
+.home-float-button {
+  right: 116rpx;
+  font-size: 22rpx;
 }
 
 .tag {

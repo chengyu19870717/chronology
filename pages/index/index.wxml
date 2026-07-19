@@ -41,6 +41,28 @@
       <button wx:if="{{keyword}}" class="clear-button" aria-label="清除搜索" catchtap="clearSearch">×</button>
     </view>
 
+    <view wx:if="{{dynastyFilter}}" class="active-filter-row">
+      <view class="dynasty-filter-chip">
+        <text>{{dynastyFilter.name}} · {{activeMode === 'event' ? '事件' : '人物'}}</text>
+        <button class="filter-close-button" aria-label="清除朝代过滤" catchtap="clearDynastyFilter">×</button>
+      </view>
+    </view>
+
+    <view wx:if="{{favorites.length || recentItems.length}}" class="library-shortcuts">
+      <button
+        wx:if="{{favorites.length}}"
+        class="library-shortcut-button"
+        data-tab="favorites"
+        catchtap="openLibrary"
+      >★ 收藏 {{favorites.length}}</button>
+      <button
+        wx:if="{{recentItems.length}}"
+        class="library-shortcut-button is-recent"
+        data-tab="recent"
+        catchtap="openLibrary"
+      >◷ 最近 {{recentItems.length}}</button>
+    </view>
+
     <view class="mode-row">
       <button
         wx:for="{{modes}}"
@@ -192,7 +214,8 @@
             wx:if="{{period.isCurriculum && period.personTotal > period.visiblePersonCount}}"
             class="period-more-button"
             data-mode="person"
-            data-dynasty="{{item.name}}"
+            data-dynasty-id="{{item.id}}"
+            data-dynasty-name="{{item.name}}"
             catchtap="openDynastyExpansion"
           >查看本朝全部 {{period.personTotal}} 位人物</button>
 
@@ -214,7 +237,8 @@
             wx:if="{{period.isCurriculum && period.eventTotal > period.events.length}}"
             class="period-more-button is-event"
             data-mode="event"
-            data-dynasty="{{item.name}}"
+            data-dynasty-id="{{item.id}}"
+            data-dynasty-name="{{item.name}}"
             catchtap="openDynastyExpansion"
           >查看本朝全部 {{period.eventTotal}} 件事件</button>
         </view>
@@ -344,6 +368,47 @@
         <view class="tag-dialog-copy">{{activeTagInfo.context}}</view>
       </view>
       <view class="tag-dialog-note">{{activeTagInfo.note}}</view>
+    </view>
+  </view>
+
+  <view
+    wx:if="{{libraryVisible}}"
+    class="library-mask"
+    catchtouchmove="preventTouchMove"
+    bindtap="closeLibrary"
+  >
+    <view class="library-sheet" catchtap="stopLibraryTap">
+      <view class="library-head">
+        <view class="library-title">我的历史书签</view>
+        <button class="library-close" aria-label="关闭" catchtap="closeLibrary">×</button>
+      </view>
+      <view class="library-tabs">
+        <button
+          class="library-tab {{activeLibraryTab === 'favorites' ? 'is-active' : ''}}"
+          data-tab="favorites"
+          catchtap="switchLibraryTab"
+        >收藏 {{favorites.length}}</button>
+        <button
+          class="library-tab {{activeLibraryTab === 'recent' ? 'is-active' : ''}}"
+          data-tab="recent"
+          catchtap="switchLibraryTab"
+        >最近 {{recentItems.length}}</button>
+      </view>
+      <scroll-view class="library-list" scroll-y="true">
+        <button
+          wx:for="{{libraryItems}}"
+          wx:key="id"
+          class="library-item"
+          data-type="{{item.type}}"
+          data-id="{{item.id}}"
+          catchtap="openLibraryItem"
+        >
+          <text class="library-type">{{item.type === 'event' ? '事件' : '人物'}}</text>
+          <text class="library-name">{{item.name}}</text>
+          <text class="library-arrow">›</text>
+        </button>
+        <view wx:if="{{!libraryItems.length}}" class="library-empty">暂无记录</view>
+      </scroll-view>
     </view>
   </view>
 

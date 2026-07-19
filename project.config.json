@@ -48,6 +48,10 @@
         "value": "workflows"
       },
       {
+        "type": "folder",
+        "value": "node_modules"
+      },
+      {
         "type": "file",
         "value": "README.md"
       },

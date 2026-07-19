@@ -2,6 +2,8 @@ const content = require('../../data/content');
 const { getPersonTagInfo } = require('../../../data/personTagGlossary');
 const { personShare } = require('../../../utils/share');
 const { handleMissingEntry, clearMissingEntryTimer } = require('../../../utils/missingEntry');
+const { navigate, goHome } = require('../../../utils/nav');
+const favoritesStore = require('../../../utils/favorites');
 
 Page({
   data: {
@@ -16,6 +18,7 @@ Page({
     avatarLoadFailed: false,
     tagDialogVisible: false,
     activeTagInfo: null,
+    isFavorite: false,
     tabs: [
       { id: 'profile', name: '档案' },
       { id: 'resume', name: '履历' },
@@ -39,7 +42,9 @@ Page({
       relationships: content.getPersonRelationships(person.id),
       activeDispute: person.disputeTabs[0] || null,
       avatarLoadFailed: false,
+      isFavorite: favoritesStore.isFavorite('person', person.id),
     });
+    favoritesStore.recordRecent({ type: 'person', id: person.id, name: person.name });
   },
 
   onUnload() {
@@ -69,11 +74,25 @@ Page({
   },
 
   goPerson(e) {
-    wx.navigateTo({ url: content.personRoute(e.currentTarget.dataset.id) });
+    navigate(content.personRoute(e.currentTarget.dataset.id));
   },
 
   goEvent(e) {
-    wx.navigateTo({ url: content.eventRoute(e.currentTarget.dataset.id) });
+    navigate(content.eventRoute(e.currentTarget.dataset.id));
+  },
+
+  goHome,
+
+  toggleFavorite() {
+    const person = this.data.person;
+    if (!person) return;
+    this.setData({
+      isFavorite: favoritesStore.toggleFavorite({
+        type: 'person',
+        id: person.id,
+        name: person.name,
+      }),
+    });
   },
 
   onPageScroll(e) {

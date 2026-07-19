@@ -1,7 +1,14 @@
 <view wx:if="{{event}}" class="page detail-page">
   <view class="hero event-hero">
     <view class="date-pill">{{event.dateText}}</view>
-    <view class="hero-title">{{event.name}}</view>
+    <view class="title-action-row">
+      <view class="hero-title">{{event.name}}</view>
+      <button
+        class="favorite-button {{isFavorite ? 'is-active' : ''}}"
+        aria-label="{{isFavorite ? '取消收藏' : '收藏事件'}}"
+        catchtap="toggleFavorite"
+      >{{isFavorite ? '★' : '☆'}}</button>
+    </view>
     <view class="hero-subtitle">{{event.periodLabel}}</view>
     <view class="hero-summary">{{event.summary}}</view>
     <view class="tag-row"><text wx:for="{{event.tags}}" wx:key="*this" class="tag">{{item}}</text></view>
@@ -37,6 +44,7 @@
   </view>
 
   <view class="safe-bottom"></view>
+  <button class="home-float-button" aria-label="回首页" catchtap="goHome">首页</button>
   <button wx:if="{{showBackTop}}" class="back-top-button" catchtap="scrollToTop">↑</button>
 </view>
 

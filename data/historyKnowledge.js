@@ -1,4 +1,5 @@
 const { formatHistoricalName } = require('./namePronunciations');
+const { personPinyinScore, rulerPinyinScore } = require('./pinyinSearch');
 const expansion = require('./historyExpansion');
 const { rulers } = require('./rulerTimeline');
 const { createMissingRulerProfiles, createSuccessionRelationships } = require('./rulerProfiles');
@@ -3023,6 +3024,8 @@ function personSearchScore(person, keyword) {
   if (name.indexOf(keyword) === 0 || baseName.indexOf(keyword) === 0 || formalName.indexOf(keyword) === 0) return 1;
   if (name.indexOf(keyword) !== -1 || formalName.indexOf(keyword) !== -1) return 2;
   if ((person.categories || []).join(' ').indexOf(keyword) !== -1) return 3;
+  const pinyinScore = personPinyinScore(person.id, keyword);
+  if (pinyinScore < 9) return pinyinScore;
   return 9;
 }
 
@@ -3204,7 +3207,10 @@ function searchPersons(keyword) {
   if (isExactRulerKeyword) return [];
   const nonRulerPersons = persons.filter(person => !isRulerPerson(person));
   const list = kw
-    ? nonRulerPersons.filter(person => buildPersonSearchText(person).indexOf(kw) !== -1)
+    ? nonRulerPersons.filter(person => (
+      buildPersonSearchText(person).indexOf(kw) !== -1
+      || personPinyinScore(person.id, kw) < 9
+    ))
     : nonRulerPersons.slice();
   return list.sort((a, b) => {
     const scoreDiff = personSearchScore(a, kw) - personSearchScore(b, kw);
@@ -3254,9 +3260,14 @@ function searchRulers(keyword) {
   const list = exactMatches.length
     ? exactMatches
     : kw
-      ? canonicalRulers.filter(ruler => buildRulerSearchText(ruler).indexOf(kw) !== -1)
+      ? canonicalRulers.filter(ruler => (
+        buildRulerSearchText(ruler).indexOf(kw) !== -1
+        || rulerPinyinScore(ruler.id, kw) < 9
+      ))
       : canonicalRulers.slice();
   return list.sort((a, b) => {
+    const score = rulerPinyinScore(a.id, kw) - rulerPinyinScore(b.id, kw);
+    if (score) return score;
     const dynastyA = dynastyMap[a.dynastyId];
     const dynastyB = dynastyMap[b.dynastyId];
     const orderA = dynastyA ? dynastyA.order : 9999;

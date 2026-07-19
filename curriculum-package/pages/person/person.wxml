@@ -8,7 +8,14 @@
       </view>
       <view class="hero-main">
         <view class="date-pill">{{person.lifeText}}</view>
-        <view class="hero-title">{{person.name}}</view>
+        <view class="title-action-row">
+          <view class="hero-title">{{person.name}}</view>
+          <button
+            class="favorite-button {{isFavorite ? 'is-active' : ''}}"
+            aria-label="{{isFavorite ? '取消收藏' : '收藏人物'}}"
+            catchtap="toggleFavorite"
+          >{{isFavorite ? '★' : '☆'}}</button>
+        </view>
         <view class="hero-subtitle">{{person.categoryText}}</view>
       </view>
     </view>
@@ -131,6 +138,7 @@
   </view>
 
   <view class="safe-bottom"></view>
+  <button class="home-float-button" aria-label="回首页" catchtap="goHome">首页</button>
   <button wx:if="{{showBackTop}}" class="back-top-button" catchtap="scrollToTop">↑</button>
 </view>
 
