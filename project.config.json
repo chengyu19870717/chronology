@@ -45,6 +45,10 @@
       },
       {
         "type": "folder",
+        "value": "assets/branding"
+      },
+      {
+        "type": "folder",
         "value": "workflows"
       },
       {
