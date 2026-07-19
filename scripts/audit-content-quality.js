@@ -344,22 +344,20 @@ const requiredDynastyTags = new Set([
 const missingDynastyTagInfo = Array.from(requiredDynastyTags).filter(label => !hasDynastyTagInfo(label));
 assert(!missingDynastyTagInfo.length, `有 ${missingDynastyTagInfo.length} 个朝代标签缺少释义`);
 
+const packOptionsIgnore = JSON.parse(fs.readFileSync(path.join(projectRoot, 'project.config.json'), 'utf8'))
+  .packOptions.ignore.map(item => path.basename(item.value));
 const ignoredRuntimeNames = new Set([
   '.DS_Store',
   '.git',
   '.gitignore',
   '.gitkeep',
-  'avatar-sources',
-  'scripts',
-  'workflows',
   'node_modules',
   'person-package',
   'curriculum-package',
-  'README.md',
-  'COMFYUI_STATUS.md',
   'avatarPrompts.js',
   'project.config.json',
   'project.private.config.json',
+  ...packOptionsIgnore,
 ]);
 const mainRuntimeFiles = walkFiles(projectRoot, ignoredRuntimeNames);
 const mainRuntimeBytes = totalBytes(mainRuntimeFiles);
